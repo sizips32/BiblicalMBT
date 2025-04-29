@@ -187,7 +187,7 @@ const mbtiDescriptionsStudent = {
   },
   ISFP: {
     name: "ISFP (감성적인 예술가)",
-    desc: "감성이 풍부하고, 예술적 재능이 있습니다. 그림, 음악, 장식 등에서 즐거움을 느낍니다.",
+    desc: "따뜻하고 감성적이며, 예술적 재능이 있습니다. 그림, 음악, 장식, 꽃꽂이 등에서 즐거움을 느낍니다.",
     recommend: "미술, 음악, 장식, 꾸미기"
   },
   INFP: {
@@ -207,7 +207,7 @@ const mbtiDescriptionsStudent = {
   },
   ESFP: {
     name: "ESFP (분위기 메이커)",
-    desc: "사교적이고, 친구들과 노는 것을 좋아합니다. 모임, 발표, 행사 등에서 활약할 수 있습니다.",
+    desc: "사교적이고, 친구들과 노는 것을 좋아합니다. 공동체 분위기를 밝게 만듭니다. 찬양, 환영, 친교, 행사 등에서 활약할 수 있습니다.",
     recommend: "모임 진행, 발표, 행사"
   },
   ENFP: {
@@ -269,7 +269,8 @@ if (studentScores) {
   const mbtiDesc = mbtiDescriptionsStudent[mbtiType];
   description = `<h2>나의 MBTI: <span style='color:#4e54c8;'>${mbtiType}</span></h2>` +
     (bibleInfo ? `<div class='bible-matching'><strong>구약 대표:</strong> ${bibleInfo.old.name} (${bibleInfo.old.verse})<br><span style='color:#555;'>${bibleInfo.old.text}</span><br><strong>신약 대표:</strong> ${bibleInfo.new.name} (${bibleInfo.new.verse})<br><span style='color:#555;'>${bibleInfo.new.text}</span></div><hr>` : "") +
-    "<h3>🧒 학생용 결과 해석</h3><p>이 학생은 " +
+    `<h3>🧒 학생용 결과 해석</h3><p><strong>${mbtiDesc.name}</strong><br>${mbtiDesc.desc}</p><p><strong>추천 활동:</strong> ${mbtiDesc.recommend}</p>` +
+    "<hr><h4>학생 MBTI 4축 해석</h4><p>이 학생은 " +
     (scores[0] >= 3 ? "활동적이고 친구들과 어울리는 것을 좋아하며," : "조용히 혼자 있는 것을 선호하고,") +
     (scores[1] >= 3 ? " 새로운 것을 탐구하고 상상하는 데 흥미가 있으며," : " 현재 상황에 집중하고 계획적으로 움직이며,") +
     (scores[2] >= 3 ? " 공정성과 이성적 판단을 중시하고," : " 타인의 감정을 잘 이해하고 공감할 수 있으며,") +
@@ -292,7 +293,8 @@ if (studentScores) {
   const mbtiDesc = mbtiDescriptionsAdult[mbtiType];
   description = `<h2>나의 MBTI: <span style='color:#4e54c8;'>${mbtiType}</span></h2>` +
     (bibleInfo ? `<div class='bible-matching'><strong>구약 대표:</strong> ${bibleInfo.old.name} (${bibleInfo.old.verse})<br><span style='color:#555;'>${bibleInfo.old.text}</span><br><strong>신약 대표:</strong> ${bibleInfo.new.name} (${bibleInfo.new.verse})<br><span style='color:#555;'>${bibleInfo.new.text}</span></div><hr>` : "") +
-    "<h3>🧑 성인용 결과 해석</h3><p>당신은 " +
+    `<h3>🧑 성인용 결과 해석</h3><p><strong>${mbtiDesc.name}</strong><br>${mbtiDesc.desc}</p><p><strong>추천 사역:</strong> ${mbtiDesc.recommend}</p>` +
+    "<hr><h4>성인 MBTI 4축 해석</h4><p>당신은 " +
     (scores[0] >= 3 ? "사람들과 함께 사역하고 복음을 나누는 것을 좋아하며," : "개인적인 묵상과 기도로 주님께 나아가는 것을 중요하게 여기고,") +
     (scores[1] >= 3 ? " 미래에 대한 비전과 인도하심에 집중하며," : " 현재와 실제적인 상황에 충실하며,") +
     (scores[2] >= 3 ? " 이성과 판단력에 따라 행동하고," : " 사랑과 긍휼로 사람을 대하는 것을 중요하게 여기며,") +
