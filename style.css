@@ -107,6 +107,13 @@ body {
     background: linear-gradient(90deg, #185a9d 0%, #43cea2 100%);
     transform: translateY(-2px) scale(1.05);
 }
+.select-buttons button.selected {
+    background: linear-gradient(90deg, #43cea2 60%, #185a9d 100%);
+    color: #fff;
+    border: 2.5px solid #185a9d;
+    box-shadow: 0 2px 12px 0 rgba(30, 80, 180, 0.15);
+    transform: scale(1.06);
+}
 
 .chart-container {
     width: 90%;
