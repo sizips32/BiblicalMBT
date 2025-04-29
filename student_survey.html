@@ -25,24 +25,21 @@
       color: #3b4a6b;
       margin-bottom: 18px;
     }
-    .survey-question {
+    .question {
       margin: 22px 0 18px 0;
       text-align: left;
       font-size: 1.08rem;
     }
-    .choice {
-      display: flex;
-      gap: 16px;
+    .choice-buttons {
       margin-top: 8px;
       margin-bottom: 10px;
     }
-    .choice label {
-      font-size: 0.97rem;
-      color: #555;
-      cursor: pointer;
+    .nav-buttons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
     }
-    .submit-btn {
-      margin-top: 24px;
+    .nav-buttons button {
       padding: 12px 36px;
       font-size: 1.1rem;
       background: linear-gradient(90deg, #4e54c8 0%, #8f94fb 100%);
@@ -53,7 +50,7 @@
       box-shadow: 0 2px 10px 0 rgba(80, 100, 180, 0.13);
       transition: background 0.18s, transform 0.18s;
     }
-    .submit-btn:hover {
+    .nav-buttons button:hover {
       background: linear-gradient(90deg, #8f94fb 0%, #4e54c8 100%);
       transform: translateY(-2px) scale(1.03);
     }
@@ -62,10 +59,14 @@
 <body>
   <div class="survey-container">
     <h1>학생용 MBTI 설문</h1>
-    <form id="studentSurveyForm"></form>
+    <div class="question" id="question-box">질문을 불러오는 중입니다...</div>
+    <div class="choice-buttons"></div>
+    <div class="nav-buttons">
+      <button id="prev-btn" style="visibility:hidden;">이전</button>
+      <button id="next-btn">다음</button>
+    </div>
   </div>
   <script>
-    // 24문항, 2지선다형(예시)
     const questions = [
       "나는 친구들과 함께 있을 때 에너지가 생긴다.",
       "나는 혼자 있는 시간이 필요하다.",
@@ -92,7 +93,6 @@
       "나는 일정을 지키는 편이다.",
       "나는 상황에 따라 유연하게 움직인다."
     ];
-    // 각 문항에 2지선다: 0, 1 (예: 0=왼쪽 선택지, 1=오른쪽 선택지)
     const choices = [
       ["그렇다", "아니다"],
       ["아니다", "그렇다"],
@@ -119,35 +119,51 @@
       ["그렇다", "아니다"],
       ["아니다", "그렇다"]
     ];
-    const form = document.getElementById('studentSurveyForm');
-    questions.forEach((q, i) => {
-      const qDiv = document.createElement('div');
-      qDiv.className = 'survey-question';
-      qDiv.innerHTML = `${i + 1}. ${q}`;
-      const choiceDiv = document.createElement('div');
-      choiceDiv.className = 'choice';
-      choices[i].forEach((label, idx) => {
-        const id = `q${i}_${idx}`;
-        choiceDiv.innerHTML += `<label><input type="radio" name="q${i}" value="${idx}" required> ${label}</label>`;
+    let current = 0;
+    const answers = [];
+    function renderQuestion() {
+      document.getElementById("question-box").textContent = `Q${current + 1}. ${questions[current]}`;
+      const choiceDiv = document.querySelector('.choice-buttons');
+      choiceDiv.innerHTML = '';
+      choices[current].forEach((label, idx) => {
+        const btn = document.createElement('button');
+        btn.textContent = label;
+        btn.style.margin = '0 10px';
+        btn.style.padding = '10px 24px';
+        btn.style.fontSize = '1rem';
+        btn.style.borderRadius = '8px';
+        btn.style.border = '1px solid #4e54c8';
+        btn.style.background = (answers[current] === idx) ? '#4e54c8' : 'white';
+        btn.style.color = (answers[current] === idx) ? 'white' : '#333';
+        btn.onclick = function() {
+          answers[current] = idx;
+          renderQuestion();
+        };
+        choiceDiv.appendChild(btn);
       });
-      qDiv.appendChild(choiceDiv);
-      form.appendChild(qDiv);
-    });
-    const submitBtn = document.createElement('button');
-    submitBtn.type = 'submit';
-    submitBtn.className = 'submit-btn';
-    submitBtn.textContent = '제출';
-    form.appendChild(submitBtn);
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const scores = [];
-      for (let i = 0; i < questions.length; i++) {
-        const val = form[`q${i}`].value;
-        scores.push(parseInt(val));
+      document.getElementById('prev-btn').style.visibility = current === 0 ? 'hidden' : 'visible';
+      document.getElementById('next-btn').textContent = current === questions.length - 1 ? '제출' : '다음';
+    }
+    document.getElementById('prev-btn').onclick = function() {
+      if (current > 0) {
+        current--;
+        renderQuestion();
       }
-      localStorage.setItem('studentScores', JSON.stringify(scores));
-      window.location.href = 'result.html';
-    });
+    };
+    document.getElementById('next-btn').onclick = function() {
+      if (answers[current] !== undefined) {
+        if (current === questions.length - 1) {
+          localStorage.setItem('studentScores', JSON.stringify(answers));
+          window.location.href = 'result.html';
+        } else {
+          current++;
+          renderQuestion();
+        }
+      } else {
+        alert('선택지를 먼저 선택해 주세요.');
+      }
+    };
+    renderQuestion();
   </script>
 </body>
 </html>
