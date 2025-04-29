@@ -1,11 +1,15 @@
 // index.js
-const nextButton = document.getElementById('next-button');
-const mainScreen = document.getElementById('main-screen');
-const selectScreen = document.getElementById('select-screen');
+document.addEventListener('DOMContentLoaded', () => {
+  const nextButton = document.getElementById('next-button');
+  const mainScreen = document.getElementById('main-screen');
+  const selectScreen = document.getElementById('select-screen');
 
-nextButton.addEventListener('click', () => {
-  mainScreen.style.display = 'none';
-  selectScreen.style.display = 'block';
+  if (nextButton) {
+    nextButton.addEventListener('click', () => {
+      mainScreen.style.display = 'none';
+      selectScreen.style.display = 'block';
+    });
+  }
 });
 
 function startSurvey(type) {
