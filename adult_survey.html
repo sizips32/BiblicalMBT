@@ -33,6 +33,14 @@
       background-color: #4CAF50;
       color: white;
       cursor: pointer;
+      transition: background 0.18s, color 0.18s, border 0.18s, transform 0.13s;
+    }
+    .scale-buttons button.selected {
+      background-color: #fff;
+      color: #d32f2f;
+      border: 2.5px solid #d32f2f;
+      font-weight: bold;
+      transform: scale(1.07);
     }
     .scale-buttons button:hover {
       background-color: #45a049;
@@ -90,14 +98,15 @@
         return;
       }
       document.getElementById("question-box").textContent = `Q${current + 1}. ${questions[current]}`;
-      // 버튼 활성화/비활성화 처리
       document.getElementById('prev-btn').style.visibility = current === 0 ? 'hidden' : 'visible';
       document.getElementById('next-btn').textContent = current === questions.length - 1 ? '제출' : '다음';
-      // 선택 상태 복원
       const scaleBtns = document.querySelectorAll('.scale-buttons button');
       scaleBtns.forEach((btn, idx) => {
-        btn.style.backgroundColor = (answers[current] === idx + 1) ? '#4CAF50' : '';
-        btn.style.color = (answers[current] === idx + 1) ? 'white' : '';
+        if (answers[current] === idx + 1) {
+          btn.classList.add('selected');
+        } else {
+          btn.classList.remove('selected');
+        }
       });
     }
 
@@ -121,7 +130,6 @@
       }
     };
 
-    // scale-buttons도 선택시 색상 표시
     function renderScaleButtons() {
       const scaleDiv = document.querySelector('.scale-buttons');
       scaleDiv.innerHTML = '';
@@ -129,6 +137,9 @@
         const btn = document.createElement('button');
         btn.textContent = label;
         btn.onclick = function() { submitAnswer(idx + 1); };
+        if (answers[current] === idx + 1) {
+          btn.classList.add('selected');
+        }
         scaleDiv.appendChild(btn);
       });
     }
