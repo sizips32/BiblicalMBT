@@ -155,6 +155,39 @@ body {
     background-color: #1976D2;
 }
 
+/* 성경교사 지도방법 스타일 */
+.teacher-guidance {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.teacher-guidance h4 {
+    color: #3b4a6b;
+    margin-top: 15px;
+    font-size: 1.1rem;
+}
+
+.teacher-guidance ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.teacher-guidance li {
+    margin-bottom: 10px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.teacher-guidance li:before {
+    content: '•';
+    color: #4e54c8;
+    position: absolute;
+    left: 0;
+    font-size: 1.2em;
+}
+
 @media (max-width: 600px) {
     .container {
         padding: 18px 0;
