@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>성인용 MBTI 설문</title>
+  <link rel="icon" type="image/png" href="assets/cross_bible_icon.png" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff;
+      text-align: center;
+      padding: 40px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .question {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+    .scale-buttons button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+    .scale-buttons button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>성인용 성경적 MBTI 설문</h1>
+    <div class="question" id="question-box">질문을 불러오는 중입니다...</div>
+    <div class="scale-buttons">
+      <button onclick="submitAnswer(1)">1</button>
+      <button onclick="submitAnswer(2)">2</button>
+      <button onclick="submitAnswer(3)">3</button>
+      <button onclick="submitAnswer(4)">4</button>
+      <button onclick="submitAnswer(5)">5</button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      "나는 사람들과 함께 하나님의 일을 나누는 데 큰 기쁨을 느낀다.",
+      "나는 조용히 성경을 묵상하며 하나님과 깊이 교제하는 시간을 소중히 여긴다.",
+      "나는 교회 모임이나 소그룹 활동에 자주 적극적으로 참여하려고 한다.",
+      "나는 혼자 있는 시간을 통해 내 믿음을 정리하고 하나님께 더 가까이 간다.",
+      "나는 복음을 다른 사람과 자연스럽게 나누는 것을 좋아한다.",
+      "나는 하나님과의 개인적인 대화를 통해 큰 위로를 받는다.",
+      "나는 오늘 주어진 사소한 일에도 하나님의 뜻을 발견하려고 한다.",
+      "나는 미래에 대한 하나님의 비전과 계획을 상상하며 기도하는 것을 좋아한다.",
+      "나는 눈에 보이는 작은 일에 충성하는 것이 중요하다고 생각한다.",
+      "나는 하나님의 뜻을 더 깊이 깨닫기 위해 상상력과 묵상을 사용한다.",
+      "나는 실제로 실행 가능한 계획을 세워 신앙을 실천하는 것을 선호한다.",
+      "나는 성령께서 인도하시는 새로운 길을 기대하며 열린 마음을 갖는다.",
+      "나는 신앙생활에서도 무엇이 옳고 그른지를 먼저 분별하려 한다.",
+      "나는 사랑과 긍휼로 사람들을 이해하고 품는 것이 중요하다고 믿는다.",
+      "나는 성경 말씀의 기준에 따라 상황을 이성적으로 판단하려 한다.",
+      "나는 사람의 아픔을 함께 느끼며 위로하는 것에 마음이 움직인다.",
+      "나는 진리를 지키기 위해 때로는 단호한 결정을 내릴 수 있다.",
+      "나는 사람들의 연약함을 감싸 안아야 한다고 생각한다.",
+      "나는 신앙생활에서도 계획을 세워 꾸준히 실천하는 편이다.",
+      "나는 성령의 인도하심을 따라 유연하게 계획을 바꾸는 것이 중요하다고 믿는다.",
+      "나는 하나님께 드리는 예배나 봉사에 있어 정해진 순서를 중요시한다.",
+      "나는 하나님의 뜻에 민감하게 반응하며 새로운 방향을 기쁘게 받아들인다.",
+      "나는 일의 마무리를 중요하게 여기며 책임감 있게 행동한다.",
+      "나는 계획보다 하나님께서 주시는 기회를 따라 믿음으로 순종하려고 한다."
+    ];
+
+    let current = 0;
+    const answers = [];
+
+    function loadQuestion() {
+      if (current >= questions.length) {
+        localStorage.setItem('adultAnswers', JSON.stringify(answers));
+        window.location.href = 'result.html';
+        return;
+      }
+      document.getElementById("question-box").textContent = `Q${current + 1}. ${questions[current]}`;
+    }
+
+    function submitAnswer(score) {
+      answers.push(score);
+      current++;
+      loadQuestion();
+    }
+
+    window.onload = loadQuestion;
+  </script>
+</body>
+</html>

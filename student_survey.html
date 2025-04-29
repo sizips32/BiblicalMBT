@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>학생용 MBTI 설문</title>
+  <link rel="icon" type="image/svg+xml" href="assets/cross_favicon.svg" />
+  <link rel="icon" type="image/png" href="assets/cross_bible_icon.png" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f5f5f5;
+      padding: 40px 0;
+    }
+    .survey-container {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 2px 16px 0 rgba(80, 100, 180, 0.12);
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 32px 24px 24px 24px;
+    }
+    h1 {
+      color: #3b4a6b;
+      margin-bottom: 18px;
+    }
+    .survey-question {
+      margin: 22px 0 18px 0;
+      text-align: left;
+      font-size: 1.08rem;
+    }
+    .choice {
+      display: flex;
+      gap: 16px;
+      margin-top: 8px;
+      margin-bottom: 10px;
+    }
+    .choice label {
+      font-size: 0.97rem;
+      color: #555;
+      cursor: pointer;
+    }
+    .submit-btn {
+      margin-top: 24px;
+      padding: 12px 36px;
+      font-size: 1.1rem;
+      background: linear-gradient(90deg, #4e54c8 0%, #8f94fb 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 2px 10px 0 rgba(80, 100, 180, 0.13);
+      transition: background 0.18s, transform 0.18s;
+    }
+    .submit-btn:hover {
+      background: linear-gradient(90deg, #8f94fb 0%, #4e54c8 100%);
+      transform: translateY(-2px) scale(1.03);
+    }
+  </style>
+</head>
+<body>
+  <div class="survey-container">
+    <h1>학생용 MBTI 설문</h1>
+    <form id="studentSurveyForm"></form>
+  </div>
+  <script>
+    // 24문항, 2지선다형(예시)
+    const questions = [
+      "나는 친구들과 함께 있을 때 에너지가 생긴다.",
+      "나는 혼자 있는 시간이 필요하다.",
+      "나는 새로운 아이디어를 상상하는 것을 좋아한다.",
+      "나는 현실적인 것이 더 중요하다고 생각한다.",
+      "나는 친구의 기분을 잘 이해한다.",
+      "나는 논리적으로 생각하는 편이다.",
+      "나는 계획을 세워 행동하는 것이 편하다.",
+      "나는 즉흥적으로 행동하는 경우가 많다.",
+      "나는 여러 사람과 어울리는 것이 즐겁다.",
+      "나는 조용한 환경에서 집중이 잘 된다.",
+      "나는 미래를 상상하는 것이 즐겁다.",
+      "나는 구체적인 사실을 중시한다.",
+      "나는 남을 도와주는 것이 기쁘다.",
+      "나는 상황을 냉정하게 판단하려 한다.",
+      "나는 미리 준비하는 것을 좋아한다.",
+      "나는 변화에 쉽게 적응한다.",
+      "나는 발표나 토론이 재미있다.",
+      "나는 깊이 생각하는 시간이 필요하다.",
+      "나는 창의적인 활동이 좋다.",
+      "나는 실용적인 것이 좋다.",
+      "나는 친구의 고민을 잘 들어준다.",
+      "나는 객관적으로 문제를 본다.",
+      "나는 일정을 지키는 편이다.",
+      "나는 상황에 따라 유연하게 움직인다."
+    ];
+    // 각 문항에 2지선다: 0, 1 (예: 0=왼쪽 선택지, 1=오른쪽 선택지)
+    const choices = [
+      ["그렇다", "아니다"],
+      ["아니다", "그렇다"],
+      ["그렇다", "아니다"],
+      ["아니다", "그렇다"],
+      ["그렇다", "아니다"],
+      ["아니다", "그렇다"],
+      ["그렇다", "아니다"],
+      ["아니다", "그렇다"],
+      ["그렇다", "아니다"],
+      ["아니다", "그렇다"],
+      ["그렇다", "아니다"],
+      ["아니다", "그렇다"],
+      ["그렇다", "아니다"],
+      ["아니다", "그렇다"],
+      ["그렇다", "아니다"],
+      ["아니다", "그렇다"],
+      ["그렇다", "아니다"],
+      ["아니다", "그렇다"],
+      ["그렇다", "아니다"],
+      ["아니다", "그렇다"],
+      ["그렇다", "아니다"],
+      ["아니다", "그렇다"],
+      ["그렇다", "아니다"],
+      ["아니다", "그렇다"]
+    ];
+    const form = document.getElementById('studentSurveyForm');
+    questions.forEach((q, i) => {
+      const qDiv = document.createElement('div');
+      qDiv.className = 'survey-question';
+      qDiv.innerHTML = `${i + 1}. ${q}`;
+      const choiceDiv = document.createElement('div');
+      choiceDiv.className = 'choice';
+      choices[i].forEach((label, idx) => {
+        const id = `q${i}_${idx}`;
+        choiceDiv.innerHTML += `<label><input type="radio" name="q${i}" value="${idx}" required> ${label}</label>`;
+      });
+      qDiv.appendChild(choiceDiv);
+      form.appendChild(qDiv);
+    });
+    const submitBtn = document.createElement('button');
+    submitBtn.type = 'submit';
+    submitBtn.className = 'submit-btn';
+    submitBtn.textContent = '제출';
+    form.appendChild(submitBtn);
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const scores = [];
+      for (let i = 0; i < questions.length; i++) {
+        const val = form[`q${i}`].value;
+        scores.push(parseInt(val));
+      }
+      localStorage.setItem('studentScores', JSON.stringify(scores));
+      window.location.href = 'result.html';
+    });
+  </script>
+</body>
+</html>

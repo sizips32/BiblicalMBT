@@ -1,0 +1,72 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f5f5f5;
+    padding: 50px;
+  }
+  
+  .chart-container {
+    width: 90%;
+    max-width: 600px;
+    margin: auto;
+  }
+  
+  .swot {
+    margin-top: 30px;
+    text-align: left;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .swot h3 {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px;
+    border-radius: 5px;
+  }
+  
+  .swot p {
+    margin: 10px 0;
+  }
+  
+  .result-btns {
+    margin-top:30px;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+  }
+  
+  #save-pdf {
+    padding: 12px 40px;
+    font-size: 1.1rem;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 2px 8px 0 rgba(33,150,243,0.13);
+    transition: background 0.18s, transform 0.18s;
+  }
+  #save-pdf:hover {
+    background-color: #1976D2;
+    transform: translateY(-2px) scale(1.03);
+  }
+  
+  #reset-btn {
+    padding: 12px 40px;
+    font-size: 1.1rem;
+    background-color: #ff4d4f;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    box-shadow: 0 2px 8px 0 rgba(255,77,79,0.13);
+    transition: background 0.18s, transform 0.18s;
+  }
+  #reset-btn:hover {
+    background-color: #c62828;
+    transform: translateY(-2px) scale(1.03);
+  }
