@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <g fill="#4A235A">
+    <!-- Bible Cover -->
+    <rect x="20" y="40" width="160" height="120" rx="10"/>
+    <!-- Bible Pages -->
+    <rect x="25" y="45" width="150" height="110" fill="#F5F5F5"/>
+    <!-- MBTI Letters -->
+    <text x="90" y="100" font-family="Arial" font-size="40" fill="#4A235A" text-anchor="middle">
+      <tspan x="90" y="100">MBTI</tspan>
+    </text>
+    <!-- Cross -->
+    <path d="M80 60 l40 0 M80 60 l0 40 M120 60 l0 40" stroke="#4A235A" stroke-width="4"/>
+  </g>
+</svg>
