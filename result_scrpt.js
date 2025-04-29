@@ -133,7 +133,7 @@ const mbtiDescriptionsAdult = {
   },
   ENTP: {
     name: "ENTP (뜨거운 논쟁가)",
-    desc: "창의적이고 논리적이며, 토론과 기획, 새로운 사역 개척에 관심이 많습니다. 기획, 토론, 연구, 미디어 사역에 적합합니다.",
+    desc: "창의적이고 논리적이며, 토론과 기획, 새로운 사역 개척에 관심이 많습니다. 기획, 토론, 발표 활동에 적합합니다.",
     recommend: "기획/연구팀, 토론모임, 미디어, 새 사역 개척"
   },
   ESTJ: {
@@ -186,7 +186,7 @@ const mbtiDescriptionsStudent = {
     recommend: "실습, 만들기, 도구 사용, 봉사"
   },
   ISFP: {
-    name: "ISFP (감성적인 예술가)",
+    name: "ISFP (호기심 많은 예술가)",
     desc: "따뜻하고 감성적이며, 예술적 재능이 있습니다. 그림, 음악, 장식, 꽃꽂이 등에서 즐거움을 느낍니다.",
     recommend: "미술, 음악, 장식, 꾸미기"
   },
@@ -270,14 +270,12 @@ if (studentScores) {
   description = `<h2>나의 MBTI: <span style='color:#4e54c8;'>${mbtiType}</span></h2>` +
     (bibleInfo ? `<div class='bible-matching'><strong>구약 대표:</strong> ${bibleInfo.old.name} (${bibleInfo.old.verse})<br><span style='color:#555;'>${bibleInfo.old.text}</span><br><strong>신약 대표:</strong> ${bibleInfo.new.name} (${bibleInfo.new.verse})<br><span style='color:#555;'>${bibleInfo.new.text}</span></div><hr>` : "") +
     `<h3>🧒 학생용 결과 해석</h3><p><strong>${mbtiDesc.name}</strong><br>${mbtiDesc.desc}</p><p><strong>추천 활동:</strong> ${mbtiDesc.recommend}</p>` +
-    "<hr><h4>학생 MBTI 4축 해석</h4><p>이 학생은 " +
-    (scores[0] >= 3 ? "활동적이고 친구들과 어울리는 것을 좋아하며," : "조용히 혼자 있는 것을 선호하고,") +
-    (scores[1] >= 3 ? " 새로운 것을 탐구하고 상상하는 데 흥미가 있으며," : " 현재 상황에 집중하고 계획적으로 움직이며,") +
-    (scores[2] >= 3 ? " 공정성과 이성적 판단을 중시하고," : " 타인의 감정을 잘 이해하고 공감할 수 있으며,") +
-    (scores[3] >= 3 ? " 계획적으로 움직이는 것을 선호합니다." : " 즉흥적으로 성령의 인도에 민감하게 반응합니다.") +
-    "</p><p><strong>👩‍🏫 교사용 제안:</strong> 이 학생에게는 " +
-    (scores[0] >= 3 ? "활동 중심의 그룹 성경공부" : "개인 묵상과 조용한 활동") +
-    "이 도움이 될 수 있습니다.";
+    `<hr><h4>학생 MBTI 4축 해석</h4><ul>` +
+    `<li><strong>E-I:</strong> ` + (scores[0] >= 3 ? "친구들과 함께 있을 때 에너지를 얻고, 모둠 활동이나 발표에 적극적으로 참여합니다." : "혼자만의 시간에서 힘을 얻고, 조용히 생각하거나 글쓰기를 즐깁니다.") + `</li>` +
+    `<li><strong>S-N:</strong> ` + (scores[1] >= 3 ? "새로운 아이디어와 상상을 즐기며, 창의적인 활동에 흥미가 많습니다." : "현실적이고 구체적인 사실에 집중하며, 주어진 일을 꼼꼼하게 처리합니다.") + `</li>` +
+    `<li><strong>T-F:</strong> ` + (scores[2] >= 3 ? "논리적이고 객관적으로 상황을 판단하며, 공정함을 중시합니다." : "친구의 감정을 잘 이해하고, 배려와 협동을 소중히 여깁니다.") + `</li>` +
+    `<li><strong>J-P:</strong> ` + (scores[3] >= 3 ? "계획적으로 준비하고, 맡은 일을 책임감 있게 완수합니다." : "상황에 맞게 유연하게 대처하며, 새로운 변화에도 잘 적응합니다.") + `</li>` +
+    `</ul>`;
 } else if (adultAnswers) {
   if (adultAnswers.length === 24) {
     let binScores = adultAnswers.map(v => v <= 3 ? 0 : 1);
@@ -294,14 +292,12 @@ if (studentScores) {
   description = `<h2>나의 MBTI: <span style='color:#4e54c8;'>${mbtiType}</span></h2>` +
     (bibleInfo ? `<div class='bible-matching'><strong>구약 대표:</strong> ${bibleInfo.old.name} (${bibleInfo.old.verse})<br><span style='color:#555;'>${bibleInfo.old.text}</span><br><strong>신약 대표:</strong> ${bibleInfo.new.name} (${bibleInfo.new.verse})<br><span style='color:#555;'>${bibleInfo.new.text}</span></div><hr>` : "") +
     `<h3>🧑 성인용 결과 해석</h3><p><strong>${mbtiDesc.name}</strong><br>${mbtiDesc.desc}</p><p><strong>추천 사역:</strong> ${mbtiDesc.recommend}</p>` +
-    "<hr><h4>성인 MBTI 4축 해석</h4><p>당신은 " +
-    (scores[0] >= 3 ? "사람들과 함께 사역하고 복음을 나누는 것을 좋아하며," : "개인적인 묵상과 기도로 주님께 나아가는 것을 중요하게 여기고,") +
-    (scores[1] >= 3 ? " 미래에 대한 비전과 인도하심에 집중하며," : " 현재와 실제적인 상황에 충실하며,") +
-    (scores[2] >= 3 ? " 이성과 판단력에 따라 행동하고," : " 사랑과 긍휼로 사람을 대하는 것을 중요하게 여기며,") +
-    (scores[3] >= 3 ? " 질서와 계획을 중시하는 성향입니다." : " 유연하게 성령의 인도하심에 따르는 삶을 추구합니다.") +
-    "</p><p><strong>👥 적용 제안:</strong> 이 성도님은 " +
-    (scores[0] >= 3 ? "소그룹 리더십이나 전도 활동" : "묵상 및 중보기도 사역") +
-    "에 잘 어울릴 수 있습니다.";
+    `<hr><h4>성인 MBTI 4축 해석</h4><ul>` +
+    `<li><strong>E-I:</strong> ` + (scores[0] >= 3 ? "사람들과 함께 있을 때 에너지를 얻고, 공동체 활동이나 모임에서 적극적으로 의견을 나눕니다." : "혼자만의 시간에서 힘을 얻고, 깊이 있는 대화와 묵상을 좋아합니다.") + `</li>` +
+    `<li><strong>S-N:</strong> ` + (scores[1] >= 3 ? "미래지향적이며, 새로운 아이디어와 비전을 제시하고 말씀의 의미를 깊이 묵상합니다." : "현실적이고 구체적인 사실에 집중하며, 주어진 사역을 꼼꼼하게 감당합니다.") + `</li>` +
+    `<li><strong>T-F:</strong> ` + (scores[2] >= 3 ? "논리적이고 객관적으로 상황을 판단하며, 공정함과 원칙을 중시합니다." : "타인의 감정에 공감하고, 따뜻하게 배려하며 공동체의 화목을 소중히 여깁니다.") + `</li>` +
+    `<li><strong>J-P:</strong> ` + (scores[3] >= 3 ? "계획적이고 체계적으로 일하며, 목표를 세우고 책임감 있게 사역을 완수합니다." : "유연하고 즉흥적으로 상황에 대처하며, 변화와 새로운 기회에 열려 있습니다.") + `</li>` +
+    `</ul>`;
 }
 
 document.getElementById('swot-section').innerHTML =
