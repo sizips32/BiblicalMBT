@@ -44,6 +44,10 @@
     <h1>성인용 성경적 MBTI 설문</h1>
     <div class="question" id="question-box">질문을 불러오는 중입니다...</div>
     <div class="scale-buttons"></div>
+    <div class="nav-buttons" style="margin-top:20px; display:flex; justify-content:space-between;">
+      <button id="prev-btn" style="visibility:hidden;">이전</button>
+      <button id="next-btn">다음</button>
+    </div>
   </div>
 
   <script>
@@ -76,6 +80,48 @@
 
     const scaleLabels = ["매우 아니다", "아니다", "보통이다", "그렇다", "매우 그렇다"];
 
+    let current = 0;
+    const answers = [];
+
+    function loadQuestion() {
+      if (current >= questions.length) {
+        localStorage.setItem('adultAnswers', JSON.stringify(answers));
+        window.location.href = 'result.html';
+        return;
+      }
+      document.getElementById("question-box").textContent = `Q${current + 1}. ${questions[current]}`;
+      // 버튼 활성화/비활성화 처리
+      document.getElementById('prev-btn').style.visibility = current === 0 ? 'hidden' : 'visible';
+      document.getElementById('next-btn').textContent = current === questions.length - 1 ? '제출' : '다음';
+      // 선택 상태 복원
+      const scaleBtns = document.querySelectorAll('.scale-buttons button');
+      scaleBtns.forEach((btn, idx) => {
+        btn.style.backgroundColor = (answers[current] === idx + 1) ? '#4CAF50' : '';
+        btn.style.color = (answers[current] === idx + 1) ? 'white' : '';
+      });
+    }
+
+    function submitAnswer(score) {
+      answers[current] = score;
+      loadQuestion();
+    }
+
+    document.getElementById('prev-btn').onclick = function() {
+      if (current > 0) {
+        current--;
+        loadQuestion();
+      }
+    };
+    document.getElementById('next-btn').onclick = function() {
+      if (answers[current]) {
+        current++;
+        loadQuestion();
+      } else {
+        alert('선택지를 먼저 선택해 주세요.');
+      }
+    };
+
+    // scale-buttons도 선택시 색상 표시
     function renderScaleButtons() {
       const scaleDiv = document.querySelector('.scale-buttons');
       scaleDiv.innerHTML = '';
@@ -87,26 +133,7 @@
       });
     }
     renderScaleButtons();
-
-    let current = 0;
-    const answers = [];
-
-    function loadQuestion() {
-      if (current >= questions.length) {
-        localStorage.setItem('adultAnswers', JSON.stringify(answers));
-        window.location.href = 'result.html';
-        return;
-      }
-      document.getElementById("question-box").textContent = `Q${current + 1}. ${questions[current]}`;
-    }
-
-    function submitAnswer(score) {
-      answers.push(score);
-      current++;
-      loadQuestion();
-    }
-
-    window.onload = loadQuestion;
+    loadQuestion();
   </script>
 </body>
 </html>
