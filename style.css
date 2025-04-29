@@ -109,7 +109,7 @@ body {
 }
 .select-buttons button.selected {
     background: linear-gradient(90deg, #43cea2 60%, #185a9d 100%);
-    color: #fff;
+    color: #ff2222 !important;
     border: 2.5px solid #185a9d;
     box-shadow: 0 2px 12px 0 rgba(30, 80, 180, 0.15);
     transform: scale(1.06);
