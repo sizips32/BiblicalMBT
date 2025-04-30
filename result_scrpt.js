@@ -256,49 +256,52 @@ function calcMBTI(scores) {
 
 let bibleInfo = null;
 
-if (studentScores) {
-  if (studentScores.length === 24) {
-    mbtiType = calcMBTI(studentScores);
+// MBTI 결과 해석
+function analyzeMBTI(mbtiType, scores, isStudent) {
+  if (isStudent) {
     bibleInfo = mbtiBibleMap[mbtiType];
-  }
-  scores = [
-    studentScores.slice(0, 6).reduce((a, b) => a + (b === 0 ? 1 : 0), 0),
-    studentScores.slice(6, 12).reduce((a, b) => a + (b === 0 ? 1 : 0), 0),
-    studentScores.slice(12, 18).reduce((a, b) => a + (b === 0 ? 1 : 0), 0),
-    studentScores.slice(18, 24).reduce((a, b) => a + (b === 0 ? 1 : 0), 0)
-  ];
-  const mbtiDesc = mbtiDescriptionsStudent[mbtiType];
-  description = `<h2>나의 MBTI: <span style='color:#4e54c8;'>${mbtiType}</span></h2>` +
-    (bibleInfo ? `<div class='bible-matching'><strong>구약 대표:</strong> ${bibleInfo.old.name} (${bibleInfo.old.verse})<br><span style='color:#555;'>${bibleInfo.old.text}</span><br><strong>신약 대표:</strong> ${bibleInfo.new.name} (${bibleInfo.new.verse})<br><span style='color:#555;'>${bibleInfo.new.text}</span></div><hr>` : "") +
-    `<h3>🧒 학생용 결과 해석</h3><p><strong>${mbtiDesc.name}</strong><br>${mbtiDesc.desc}</p><p><strong>추천 활동:</strong> ${mbtiDesc.recommend}</p>` +
-    `<hr><h4>학생 MBTI 4축 해석</h4><ul>` +
-    `<li><strong>E-I:</strong> ` + (scores[0] >= 3 ? "친구들과 함께 있을 때 에너지를 얻고, 모둠 활동이나 발표에 적극적으로 참여합니다." : "혼자만의 시간에서 힘을 얻고, 조용히 생각하거나 글쓰기를 즐깁니다.") + `</li>` +
-    `<li><strong>S-N:</strong> ` + (scores[1] >= 3 ? "새로운 아이디어와 상상을 즐기며, 창의적인 활동에 흥미가 많습니다." : "현실적이고 구체적인 사실에 집중하며, 주어진 일을 꼼꼼하게 처리합니다.") + `</li>` +
-    `<li><strong>T-F:</strong> ` + (scores[2] >= 3 ? "논리적이고 객관적으로 상황을 판단하며, 공정함을 중시합니다." : "친구의 감정을 잘 이해하고, 배려와 협동을 소중히 여깁니다.") + `</li>` +
-    `<li><strong>J-P:</strong> ` + (scores[3] >= 3 ? "계획적으로 준비하고, 맡은 일을 책임감 있게 완수합니다." : "상황에 맞게 유연하게 대처하며, 새로운 변화에도 잘 적응합니다.") + `</li>` +
-    `</ul>`;
-} else if (adultAnswers) {
-  if (adultAnswers.length === 24) {
-    let binScores = adultAnswers.map(v => v <= 3 ? 0 : 1);
-    mbtiType = calcMBTI(binScores);
+    const mbtiDesc = mbtiDescriptionsStudent[mbtiType];
+    description = `<h2>나의 MBTI: <span style='color:#4e54c8;'>${mbtiType}</span></h2>` +
+      (bibleInfo ? `<div class='bible-matching'><strong>구약 대표:</strong> ${bibleInfo.old.name} (${bibleInfo.old.verse})<br><span style='color:#555;'>${bibleInfo.old.text}</span><br><strong>신약 대표:</strong> ${bibleInfo.new.name} (${bibleInfo.new.verse})<br><span style='color:#555;'>${bibleInfo.new.text}</span></div><hr>` : "") +
+      `<h3>🧒 학생용 결과 해석</h3><p><strong>${mbtiDesc.name}</strong><br>${mbtiDesc.desc}</p><p><strong>추천 활동:</strong> ${mbtiDesc.recommend}</p>` +
+      `<hr><h4>학생 MBTI 4축 해석</h4><ul>` +
+      `<li><strong>E-I:</strong> ` + (scores[0] >= 3 ? "친구들과 함께 있을 때 에너지를 얻고, 모둠 활동이나 발표에 적극적으로 참여합니다." : "혼자만의 시간에서 힘을 얻고, 조용히 생각하거나 글쓰기를 즐깁니다.") + `</li>` +
+      `<li><strong>S-N:</strong> ` + (scores[1] >= 3 ? "새로운 아이디어와 상상을 즐기며, 창의적인 활동에 흥미가 많습니다." : "현실적이고 구체적인 사실에 집중하며, 주어진 일을 꼼꼼하게 처리합니다.") + `</li>` +
+      `<li><strong>T-F:</strong> ` + (scores[2] >= 3 ? "논리적이고 객관적으로 상황을 판단하며, 공정함을 중시합니다." : "친구의 감정을 잘 이해하고, 배려와 협동을 소중히 여깁니다.") + `</li>` +
+      `<li><strong>J-P:</strong> ` + (scores[3] >= 3 ? "계획적으로 준비하고, 맡은 일을 책임감 있게 완수합니다." : "상황에 맞게 유연하게 대처하며, 새로운 변화에도 잘 적응합니다.") + `</li>` +
+      `</ul>`;
+  } else {
     bibleInfo = mbtiBibleMap[mbtiType];
+    const mbtiDesc = mbtiDescriptionsAdult[mbtiType];
+    description = `<h2>나의 MBTI: <span style='color:#4e54c8;'>${mbtiType}</span></h2>` +
+      (bibleInfo ? `<div class='bible-matching'><strong>구약 대표:</strong> ${bibleInfo.old.name} (${bibleInfo.old.verse})<br><span style='color:#555;'>${bibleInfo.old.text}</span><br><strong>신약 대표:</strong> ${bibleInfo.new.name} (${bibleInfo.new.verse})<br><span style='color:#555;'>${bibleInfo.new.text}</span></div><hr>` : "") +
+      `<h3>🧑 성인용 결과 해석</h3><p><strong>${mbtiDesc.name}</strong><br>${mbtiDesc.desc}</p><p><strong>추천 사역:</strong> ${mbtiDesc.recommend}</p>` +
+      `<hr><h4>성인 MBTI 4축 해석</h4><ul>` +
+      `<li><strong>E-I:</strong> ` + (scores[0] >= 3 ? "사람들과 함께 있을 때 에너지를 얻고, 공동체 활동이나 모임에서 적극적으로 의견을 나눕니다." : "혼자만의 시간에서 힘을 얻고, 깊이 있는 대화와 묵상을 좋아합니다.") + `</li>` +
+      `<li><strong>S-N:</strong> ` + (scores[1] >= 3 ? "미래지향적이며, 새로운 아이디어와 비전을 제시하고 말씀의 의미를 깊이 묵상합니다." : "현실적이고 구체적인 사실에 집중하며, 주어진 사역을 꼼꼼하게 감당합니다.") + `</li>` +
+      `<li><strong>T-F:</strong> ` + (scores[2] >= 3 ? "논리적이고 객관적으로 상황을 판단하며, 공정함과 원칙을 중시합니다." : "타인의 감정에 공감하고, 따뜻하게 배려하며 공동체의 화목을 소중히 여깁니다.") + `</li>` +
+      `<li><strong>J-P:</strong> ` + (scores[3] >= 3 ? "계획적이고 체계적으로 일하며, 목표를 세우고 책임감 있게 사역을 완수합니다." : "유연하고 즉흥적으로 상황에 대처하며, 변화와 새로운 기회에 열려 있습니다.") + `</li>` +
+      `</ul>`;
   }
-  scores = [
-    average(adultAnswers.slice(0, 6)),
-    average(adultAnswers.slice(6, 12)),
-    average(adultAnswers.slice(12, 18)),
-    average(adultAnswers.slice(18, 24))
-  ];
-  const mbtiDesc = mbtiDescriptionsAdult[mbtiType];
-  description = `<h2>나의 MBTI: <span style='color:#4e54c8;'>${mbtiType}</span></h2>` +
-    (bibleInfo ? `<div class='bible-matching'><strong>구약 대표:</strong> ${bibleInfo.old.name} (${bibleInfo.old.verse})<br><span style='color:#555;'>${bibleInfo.old.text}</span><br><strong>신약 대표:</strong> ${bibleInfo.new.name} (${bibleInfo.new.verse})<br><span style='color:#555;'>${bibleInfo.new.text}</span></div><hr>` : "") +
-    `<h3>🧑 성인용 결과 해석</h3><p><strong>${mbtiDesc.name}</strong><br>${mbtiDesc.desc}</p><p><strong>추천 사역:</strong> ${mbtiDesc.recommend}</p>` +
-    `<hr><h4>성인 MBTI 4축 해석</h4><ul>` +
-    `<li><strong>E-I:</strong> ` + (scores[0] >= 3 ? "사람들과 함께 있을 때 에너지를 얻고, 공동체 활동이나 모임에서 적극적으로 의견을 나눕니다." : "혼자만의 시간에서 힘을 얻고, 깊이 있는 대화와 묵상을 좋아합니다.") + `</li>` +
-    `<li><strong>S-N:</strong> ` + (scores[1] >= 3 ? "미래지향적이며, 새로운 아이디어와 비전을 제시하고 말씀의 의미를 깊이 묵상합니다." : "현실적이고 구체적인 사실에 집중하며, 주어진 사역을 꼼꼼하게 감당합니다.") + `</li>` +
-    `<li><strong>T-F:</strong> ` + (scores[2] >= 3 ? "논리적이고 객관적으로 상황을 판단하며, 공정함과 원칙을 중시합니다." : "타인의 감정에 공감하고, 따뜻하게 배려하며 공동체의 화목을 소중히 여깁니다.") + `</li>` +
-    `<li><strong>J-P:</strong> ` + (scores[3] >= 3 ? "계획적이고 체계적으로 일하며, 목표를 세우고 책임감 있게 사역을 완수합니다." : "유연하고 즉흥적으로 상황에 대처하며, 변화와 새로운 기회에 열려 있습니다.") + `</li>` +
-    `</ul>`;
+}
+
+// 결과 분석 로직
+if (studentScores && studentScores.length === 24) {
+  mbtiType = calcMBTI(studentScores);
+  scores = studentScores.reduce((acc, curr, i) => {
+    const axis = Math.floor(i / 6);
+    acc[axis] = (acc[axis] || 0) + (curr === 0 ? 1 : 0);
+    return acc;
+  }, []);
+  analyzeMBTI(mbtiType, scores, true);
+} else if (adultAnswers && adultAnswers.length === 24) {
+  mbtiType = calcMBTI(adultAnswers);
+  scores = adultAnswers.reduce((acc, curr, i) => {
+    const axis = Math.floor(i / 6);
+    acc[axis] = (acc[axis] || 0) + (curr === 0 ? 1 : 0);
+    return acc;
+  }, []);
+  analyzeMBTI(mbtiType, scores, false);
 }
 
 document.getElementById('swot-section').innerHTML =
