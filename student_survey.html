@@ -101,6 +101,7 @@
     function loadQuestion() {
       if (current >= questions.length) {
         localStorage.setItem('studentScores', JSON.stringify(answers));
+        localStorage.setItem('isStudent', 'true');
         window.location.href = 'result.html';
         return;
       }
