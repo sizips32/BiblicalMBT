@@ -1,472 +1,213 @@
-const studentScores = JSON.parse(localStorage.getItem('studentScores') || '[]');
-const adultScores = JSON.parse(localStorage.getItem('adultScores') || '[]');
+// 모듈 임포트
+import mbtiBibleMap from './data/mbtiBibleMap.js';
+import { mbtiDescriptionsAdult, mbtiDescriptionsStudent } from './data/mbtiDescriptions.js';
+import { swotAnalysis } from './data/swotAnalysis.js';
 
-// 페이지 로드 시 초기화
-document.addEventListener('DOMContentLoaded', () => {
-  // 성인/학생 구분 플래그 확인
-  const isStudent = localStorage.getItem('isStudent') === 'true';
-  
-  // 해당하는 점수 데이터 가져오기
-  const scores = isStudent ? studentScores : adultScores;
-  
-  if (!scores || scores.length !== 24) {
-    alert('올바른 설문 결과가 없습니다. 다시 시작해주세요.');
-    window.location.href = 'index.html';
-    return;
-  }
-
-  // MBTI 유형 계산
-  const mbtiType = calcMBTI(scores);
-  
-  // 결과 데이터 가져오기
-  const resultData = isStudent ? mbtiDescriptionsStudent[mbtiType] : mbtiDescriptionsAdult[mbtiType];
-  
-  // 결과 표시 업데이트
-  document.getElementById('mbti-type').textContent = resultData.name;
-  document.getElementById('mbti-desc').textContent = resultData.desc;
-  document.getElementById('recommend').textContent = resultData.recommend;
-  
-  // 성경 인물/구절 표시
-  const bibleInfo = isStudent ? mbtiBibleMap[mbtiType].new : mbtiBibleMap[mbtiType].old;
-  document.getElementById('bible-person').textContent = bibleInfo.name;
-  document.getElementById('bible-verse').textContent = bibleInfo.verse;
-  document.getElementById('bible-text').textContent = bibleInfo.text;
-  
-  // 차트 생성
-  createMBTIChart(scores);
-  
-  // SWOT 분석 표시
-  const swotAnalysis = getSWOT(scores, isStudent);
-  document.getElementById('swot-analysis').innerHTML = swotAnalysis;
-});
-
-let labels = ['E-I', 'S-N', 'T-F', 'J-P'];
-let scores = [];
-let description = "";
-let mbtiType = "";
-
-// MBTI별 성경 인물/구절 매핑
-const mbtiBibleMap = {
-  ISTJ: {
-    old: { name: '모세', verse: '출애굽기 18:24', text: '모세가 그의 장인의 말을 듣고 그 모든 말대로 하여…' },
-    new: { name: '야고보', verse: '야고보서 2:17', text: '이와 같이 행함이 없는 믿음은 그 자체가 죽은 것이라.' }
-  },
-  ISFJ: {
-    old: { name: '룻', verse: '룻기 1:16', text: '어머니의 백성이 나의 백성이 되고, 어머니의 하나님이 나의 하나님이 되시리니…' },
-    new: { name: '마리아(예수 어머니)', verse: '누가복음 2:51', text: '그 어머니는 이 모든 말을 마음에 두니라.' }
-  },
-  INFJ: {
-    old: { name: '사무엘', verse: '사무엘상 3:19-20', text: '사무엘이 자라매 여호와께서 그와 함께 계셔서…' },
-    new: { name: '요한', verse: '요한복음 13:23', text: '예수의 제자 중 하나, 곧 그가 사랑하시는 자가 예수의 품에 기대어…' }
-  },
-  INTJ: {
-    old: { name: '다니엘', verse: '다니엘 6:10', text: '다니엘이 이 조서에 왕의 도장이 찍힌 것을 알고도…' },
-    new: { name: '바울', verse: '로마서 12:2', text: '이 세대를 본받지 말고 오직 마음을 새롭게 함으로 변화를 받아…' }
-  },
-  ISTP: {
-    old: { name: '엘리야', verse: '열왕기상 18:36-37', text: '엘리야가 나아가서 말하되…' },
-    new: { name: '도마', verse: '요한복음 20:27-28', text: '도마에게 이르시되 네 손가락을 이리 내밀어…' }
-  },
-  ISFP: {
-    old: { name: '다윗', verse: '시편 23:1-2', text: '여호와는 나의 목자시니 내게 부족함이 없으리로다…' },
-    new: { name: '마르다', verse: '누가복음 10:41-42', text: '주께서 대답하여 이르시되 마르다야 마르다야…' }
-  },
-  INFP: {
-    old: { name: '예레미야', verse: '예레미야 1:5-9', text: '내가 너를 모태에서 짓기 전에 너를 알았고…' },
-    new: { name: '디모데', verse: '디모데후서 1:5-7', text: '이는 네 속에 거짓이 없는 믿음이 있음을 생각함이라…' }
-  },
-  INTP: {
-    old: { name: '솔로몬', verse: '열왕기상 3:9-12', text: '누가 주의 이 많은 백성을 재판할 수 있사오리이까…' },
-    new: { name: '누가', verse: '골로새서 4:14', text: '사랑을 받는 의원 누가와…' }
-  },
-  ESTP: {
-    old: { name: '삼손', verse: '사사기 14:6', text: '여호와의 영이 삼손에게 강하게 임하매…' },
-    new: { name: '베드로', verse: '마태복음 14:29', text: '베드로가 배에서 내려 물 위로 걸어서…' }
-  },
-  ESFP: {
-    old: { name: '삼엘', verse: '사무엘상 16:12-13', text: '사무엘이 기름을 부으니…' },
-    new: { name: '마리아(막달라)', verse: '누가복음 8:2-3', text: '일곱 귀신이 나간 마리아…' }
-  },
-  ENFP: {
-    old: { name: '요셉', verse: '창세기 41:39-40', text: '바로가 요셉에게 이르되…' },
-    new: { name: '베드로', verse: '사도행전 2:14', text: '베드로가 열한 사도와 함께 서서…' }
-  },
-  ENTP: {
-    old: { name: '요나', verse: '요나 1:1-3', text: '여호와의 말씀이 요나에게 임하니라…' },
-    new: { name: '바울', verse: '사도행전 17:22-23', text: '바울이 아레오바고 가운데 서서 말하되…' }
-  },
-  ESTJ: {
-    old: { name: '여호수아', verse: '여호수아 1:7-9', text: '오직 강하고 극히 담대하여…' },
-    new: { name: '빌립', verse: '사도행전 6:5-6', text: '빌립과 브로고로와…' }
-  },
-  ESFJ: {
-    old: { name: '아론', verse: '출애굽기 4:14-16', text: '그가 네 말을 대신하여…' },
-    new: { name: '마르다', verse: '요한복음 11:21-22', text: '마르다가 예수께 여짜오되…' }
-  },
-  ENFJ: {
-    old: { name: '모세', verse: '민수기 12:7-8', text: '내 종 모세와는 내가 대면하여…' },
-    new: { name: '베드로', verse: '요한복음 21:15-17', text: '내 어린 양을 먹이라…' }
-  },
-  ENTJ: {
-    old: { name: '느헤미야', verse: '느헤미야 2:17-18', text: '느헤미야가 그들에게 이르되…' },
-    new: { name: '바울', verse: '고린도전서 9:22-23', text: '내가 여러 사람에게 여러 모습이 된 것은…' }
-  }
-};
-
-// MBTI 16유형별 상세 결과 해석 (성인용)
-const mbtiDescriptionsAdult = {
-  ISTJ: {
-    name: "ISTJ (청렴결백한 현실주의자)",
-    desc: "책임감이 강하고 신중하며, 말씀과 원칙을 소중히 여깁니다. 교회 내 행정, 재정, 질서유지, 봉사 등에서 탁월함을 보일 수 있습니다. 묵묵히 주어진 사명을 완수하는 신실한 일꾼입니다.",
-    recommend: "예배위원, 재정/행정팀, 봉사팀, 질서유지 사역"
-  },
-  ISFJ: {
-    name: "ISFJ (용감한 수호자)",
-    desc: "섬세하고 따뜻하며 헌신적으로 타인을 돌봅니다. 교회 내에서 돌봄, 상담, 식사/환영 사역 등에 적합하며, 조용히 사랑을 실천하는 모습이 아름답습니다.",
-    recommend: "환영팀, 상담/돌봄, 식사/친교, 중보기도 사역"
-  },
-  INFJ: {
-    name: "INFJ (선의의 옹호자)",
-    desc: "깊은 통찰력과 비전을 가진 영적 리더입니다. 말씀 묵상, 영적 지도, 중보기도, 비전 제시 등에서 강점을 보입니다. 공동체를 위한 영적 나침반 역할을 할 수 있습니다.",
-    recommend: "중보기도, 말씀나눔, 영적멘토, 비전팀"
-  },
-  INTJ: {
-    name: "INTJ (용의주도한 전략가)",
-    desc: "분석적이고 체계적인 사고로 교회의 미래와 방향을 모색합니다. 기획, 전략, 리더십, 연구 등에서 두각을 나타낼 수 있습니다.",
-    recommend: "기획/전략팀, 리더십, 연구, IT/미디어 사역"
-  },
-  ISTP: {
-    name: "ISTP (만능 재주꾼)",
-    desc: "실용적이고 문제 해결에 능하며, 봉사 현장이나 기술적 지원에서 강점을 보입니다. 손으로 하는 봉사, 시설 관리, 영상/음향 등에서 빛을 발합니다.",
-    recommend: "시설관리, 음향/영상, 기술 지원, 봉사팀"
-  },
-  ISFP: {
-    name: "ISFP (호기심 많은 예술가)",
-    desc: "따뜻하고 감성적이며, 예술적 재능으로 예배와 공동체에 아름다움을 더합니다. 찬양, 미술, 장식, 꽃꽂이 등에서 섬김이 가능합니다.",
-    recommend: "찬양팀, 미술/장식, 꽃꽂이, 디자인 사역"
-  },
-  INFP: {
-    name: "INFP (열정적인 중재자)",
-    desc: "이상과 신념이 뚜렷하며, 말씀 묵상과 글쓰기, 창작, 상담 등에서 은혜를 나눕니다. 조용히 깊은 공감으로 사람들을 위로합니다.",
-    recommend: "문서/출판, 상담, 묵상모임, 창작 사역"
-  },
-  INTP: {
-    name: "INTP (논리적인 사색가)",
-    desc: "탐구심이 많고 새로운 신학적 질문과 연구, 토론에 열정적입니다. 성경공부, 자료정리, IT, 연구사역에 적합합니다.",
-    recommend: "성경공부, 연구, 자료정리, IT/미디어 사역"
-  },
-  ESTP: {
-    name: "ESTP (모험을 즐기는 사업가)",
-    desc: "즉흥적이고 활동적이며, 현장 사역과 대외활동, 이벤트, 봉사 등에서 에너지가 넘칩니다. 전도, 행사, 스포츠 사역에 강점이 있습니다.",
-    recommend: "전도팀, 행사기획, 스포츠/레크리에이션, 봉사팀"
-  },
-  ESFP: {
-    name: "ESFP (자유로운 영혼의 연예인)",
-    desc: "사교적이고, 친구들과 노는 것을 좋아합니다. 공동체 분위기를 밝게 만듭니다. 찬양, 환영, 친교, 행사 등에서 활약할 수 있습니다.",
-    recommend: "찬양팀, 환영/친교, 행사팀, 레크리에이션"
-  },
-  ENFP: {
-    name: "ENFP (재기발랄한 활동가)",
-    desc: "창의적이고, 새로운 아이디어와 비전을 제시합니다. 친구들과 함께하는 활동, 기획, 발표에 강점이 있습니다.",
-    recommend: "청년부, 소그룹리더, 선교, 기획/홍보팀"
-  },
-  ENTP: {
-    name: "ENTP (뜨거운 논쟁가)",
-    desc: "창의적이고 논리적이며, 토론과 기획, 새로운 사역 개척에 관심이 많습니다. 기획, 토론, 발표 활동에 적합합니다.",
-    recommend: "기획/연구팀, 토론모임, 미디어, 새 사역 개척"
-  },
-  ESTJ: {
-    name: "ESTJ (엄격한 관리자)",
-    desc: "조직적이고 실용적이며, 질서와 규율을 중시합니다. 교회 내 행정, 조직 관리, 재정, 봉사 등에서 리더십을 발휘합니다.",
-    recommend: "행정/재정팀, 조직관리, 봉사팀, 리더십"
-  },
-  ESFJ: {
-    name: "ESFJ (사교적인 외교관)",
-    desc: "사람을 잘 돌보고, 공동체 내 화목과 친교를 이끕니다. 환영, 친교, 식사, 돌봄, 상담 등에서 섬김이 두드러집니다.",
-    recommend: "환영/친교, 식사/돌봄, 상담, 중보기도"
-  },
-  ENFJ: {
-    name: "ENFJ (정의로운 사회운동가)",
-    desc: "타인을 이끄는 리더십과 따뜻한 공감 능력으로 공동체를 세웁니다. 소그룹, 리더, 중보기도, 상담 등에서 영향력을 발휘합니다.",
-    recommend: "소그룹리더, 중보기도, 상담, 공동체 리더"
-  },
-  ENTJ: {
-    name: "ENTJ (대담한 통솔자)",
-    desc: "목표지향적이고 전략적이며, 비전과 기획, 리더십이 뛰어납니다. 교회 내 리더, 기획, 전략, 대외사역에 적합합니다.",
-    recommend: "리더십, 기획/전략팀, 대외사역, 선교"
-  }
-};
-
-// MBTI 16유형별 상세 결과 해석 (학생용)
-const mbtiDescriptionsStudent = {
-  ISTJ: {
-    name: "ISTJ (성실한 책임자)",
-    desc: "규칙을 잘 지키고, 맡은 일에 책임감이 강해요. 조용히 자기 역할을 다하는 친구입니다.",
-    recommend: "질서유지, 준비물 챙기기, 기록 담당"
-  },
-  ISFJ: {
-    name: "ISFJ (따뜻한 도우미)",
-    desc: "친구를 잘 챙기고, 배려심이 많아요. 다른 친구를 돕는 일에 기쁨을 느낍니다.",
-    recommend: "친구 돌보기, 환영/친교, 봉사활동"
-  },
-  INFJ: {
-    name: "INFJ (조용한 조언자)",
-    desc: "생각이 깊고, 친구의 고민을 잘 들어줍니다. 조용히 응원해주는 따뜻한 친구입니다.",
-    recommend: "상담, 글쓰기, 조용한 봉사"
-  },
-  INTJ: {
-    name: "INTJ (계획하는 전략가)",
-    desc: "계획을 잘 세우고, 새로운 아이디어를 생각하는 데 능해요. 프로젝트나 기획 활동에 강점이 있습니다.",
-    recommend: "프로젝트 기획, 자료정리, 연구활동"
-  },
-  ISTP: {
-    name: "ISTP (실용적인 해결사)",
-    desc: "문제를 빠르게 해결하고, 손재주가 좋습니다. 실습, 만들기, 실용적 활동에 강합니다.",
-    recommend: "실습, 만들기, 도구 사용, 봉사"
-  },
-  ISFP: {
-    name: "ISFP (호기심 많은 예술가)",
-    desc: "따뜻하고 감성적이며, 예술적 재능이 있습니다. 그림, 음악, 장식, 꽃꽂이 등에서 즐거움을 느낍니다.",
-    recommend: "미술, 음악, 장식, 꾸미기"
-  },
-  INFP: {
-    name: "INFP (이상적인 중재자)",
-    desc: "마음이 따뜻하고, 자신의 신념을 소중히 여깁니다. 글쓰기, 창작, 친구 위로에 강점이 있습니다.",
-    recommend: "글쓰기, 창작, 친구 위로"
-  },
-  INTP: {
-    name: "INTP (호기심 많은 탐구자)",
-    desc: "새로운 것을 배우고, 궁금한 것이 많아요. 탐구, 연구, 실험 활동에 흥미가 많습니다.",
-    recommend: "탐구활동, 연구, 실험"
-  },
-  ESTP: {
-    name: "ESTP (활동적인 해결사)",
-    desc: "에너지가 넘치고, 직접 몸으로 부딪혀 배우는 것을 좋아합니다. 운동, 현장체험, 이벤트 활동에 강점이 있습니다.",
-    recommend: "운동, 체험활동, 이벤트"
-  },
-  ESFP: {
-    name: "ESFP (분위기 메이커)",
-    desc: "사교적이고, 친구들과 노는 것을 좋아합니다. 공동체 분위기를 밝게 만듭니다. 찬양, 환영, 친교, 행사 등에서 활약할 수 있습니다.",
-    recommend: "모임 진행, 발표, 행사"
-  },
-  ENFP: {
-    name: "ENFP (아이디어 뱅크)",
-    desc: "창의적이고, 새로운 생각을 많이 해냅니다. 친구들과 함께하는 활동, 기획, 발표에 강점이 있습니다.",
-    recommend: "기획, 발표, 그룹활동"
-  },
-  ENTP: {
-    name: "ENTP (토론가)",
-    desc: "토론을 좋아하고, 새로운 아이디어로 친구들을 이끕니다. 토론, 기획, 발표 활동에 적합합니다.",
-    recommend: "토론, 기획, 발표"
-  },
-  ESTJ: {
-    name: "ESTJ (실용적인 리더)",
-    desc: "조직적이고, 친구들을 이끄는 리더십이 있습니다. 모임 진행, 역할 분담, 질서유지에 강점이 있습니다.",
-    recommend: "모임 리더, 역할 분담, 질서유지"
-  },
-  ESFJ: {
-    name: "ESFJ (친절한 친구)",
-    desc: "친구를 잘 챙기고, 모두가 잘 어울리도록 돕습니다. 환영, 친교, 돌봄 활동에 적합합니다.",
-    recommend: "환영, 친교, 돌봄"
-  },
-  ENFJ: {
-    name: "ENFJ (이끄는 리더)",
-    desc: "친구들을 잘 이끌고, 모두가 함께할 수 있도록 도와줍니다. 그룹 활동, 발표, 리더 역할에 강점이 있습니다.",
-    recommend: "그룹리더, 발표, 조정 역할"
-  },
-  ENTJ: {
-    name: "ENTJ (당찬 지도자)",
-    desc: "목표를 세우고, 친구들을 이끌며, 큰 그림을 보는 능력이 있습니다. 프로젝트, 기획, 리더 역할에 적합합니다.",
-    recommend: "프로젝트 리더, 기획, 발표"
-  }
-};
-
-// MBTI 계산 함수 (1-5점 척도 설문 결과 처리)
+// 유틸리티 함수들
 function calcMBTI(scores) {
-  if (scores.length !== 24) return '?';
-  
-  // 각 차원별 점수 계산
-  // E-I: 1점이 I형, 5점이 E형
-  const ei = scores.slice(0, 6).reduce((acc, cur) => acc + (6 - cur), 0);
-  // S-N: 1점이 S형, 5점이 N형
-  const sn = scores.slice(6, 12).reduce((acc, cur) => acc + (6 - cur), 0);
-  // T-F: 1점이 T형, 5점이 F형
-  const tf = scores.slice(12, 18).reduce((acc, cur) => acc + (6 - cur), 0);
-  // J-P: 1점이 J형, 5점이 P형
-  const jp = scores.slice(18, 24).reduce((acc, cur) => acc + (6 - cur), 0);
-  
-  // 평균 점수 계산 (1-5 척도)
-  const avgEI = ei / 6;
-  const avgSN = sn / 6;
-  const avgTF = tf / 6;
-  const avgJP = jp / 6;
-  
-  // 3점 기준으로 판단 (3점 이상이면 해당 특성, 미만이면 반대 특성)
-  return `${avgEI >= 3 ? 'E' : 'I'}${avgSN >= 3 ? 'N' : 'S'}${avgTF >= 3 ? 'T' : 'F'}${avgJP >= 3 ? 'J' : 'P'}`;
-}
-
-let bibleInfo = null;
-
-function displayResult() {
-  // localStorage에서 성인/학생 구분을 위한 플래그 가져오기
-  const isStudent = localStorage.getItem('isStudent') === 'true';
-
-  // 해당하는 설문 결과 가져오기
-  const scores = JSON.parse(localStorage.getItem(isStudent ? 'studentScores' : 'adultScores'));
-
-  if (!scores) {
-    alert('설문 결과가 없습니다. 처음부터 다시 시작해주세요.');
-    window.location.href = 'index.html';
-    return;
+  if (!Array.isArray(scores) || scores.length !== 24) {
+    throw new Error('유효하지 않은 점수 데이터입니다.');
   }
 
-  // MBTI 유형 계산
-  const mbtiType = determineMBTIType(scores);
+  const sumEI = scores.slice(0, 6).reduce((acc, cur) => acc + cur, 0);
+  const sumSN = scores.slice(6, 12).reduce((acc, cur) => acc + cur, 0);
+  const sumTF = scores.slice(12, 18).reduce((acc, cur) => acc + cur, 0);
+  const sumJP = scores.slice(18, 24).reduce((acc, cur) => acc + cur, 0);
 
-  // 결과 데이터 가져오기
-  const resultData = isStudent ? mbtiDescriptionsStudent[mbtiType] : mbtiDescriptionsAdult[mbtiType];
+  const typeE = sumEI > 18 ? 'E' : 'I';
+  const typeN = sumSN > 18 ? 'N' : 'S';
+  const typeF = sumTF > 18 ? 'F' : 'T';
+  const typeP = sumJP > 18 ? 'P' : 'J';
 
-  // 결과 표시
-  document.getElementById('mbti-type').textContent = mbtiType;
-  document.getElementById('mbti-desc').textContent = resultData.desc;
-  document.getElementById('bible-person').textContent = resultData.biblePerson;
-  document.getElementById('bible-verse').textContent = resultData.bibleVerse;
-  document.getElementById('bible-text').textContent = resultData.bibleText;
-  document.getElementById('recommend').textContent = resultData.recommend;
-
-  // SWOT 분석 결과 표시
-  const swot = getSWOT(mbtiType, isStudent);
-  document.getElementById('strengths').textContent = swot.strengths;
-  document.getElementById('weaknesses').textContent = swot.weaknesses;
-  document.getElementById('opportunities').textContent = swot.opportunities;
-  document.getElementById('threats').textContent = swot.threats;
-
-  // 차트 생성
-  createMBTIChart(scores);
+  return `${typeE}${typeN}${typeF}${typeP}`;
 }
 
 function getSWOT(type, isStudent) {
-  if (isStudent) {
+  try {
+    const swotData = isStudent ? swotAnalysis.student[type] : swotAnalysis.adult[type];
+    if (!swotData) {
+      throw new Error(`해당 MBTI 유형(${type})의 SWOT 데이터를 찾을 수 없습니다.`);
+    }
+    return swotData;
+  } catch (error) {
+    console.error('SWOT 데이터 조회 중 오류 발생:', error);
     return {
-      strengths: `학생으로서 ${type} 유형의 강점은...`,
-      weaknesses: `학생으로서 ${type} 유형의 약점은...`,
-      opportunities: `학생으로서 ${type} 유형의 기회는...`,
-      threats: `학생으로서 ${type} 유형의 위협은...`
-    };
-  } else {
-    return {
-      strengths: `성인으로서 ${type} 유형의 강점은...`,
-      weaknesses: `성인으로서 ${type} 유형의 약점은...`,
-      opportunities: `성인으로서 ${type} 유형의 기회는...`,
-      threats: `성인으로서 ${type} 유형의 위협은...`
+      strengths: '데이터 없음',
+      weaknesses: '데이터 없음',
+      opportunities: '데이터 없음',
+      threats: '데이터 없음'
     };
   }
 }
 
 function createMBTIChart(scores) {
-  const isStudent = localStorage.getItem('isStudent') === 'true';
-  const labels = ['E-I', 'S-N', 'T-F', 'J-P'];
-
-  // 점수 계산
-  const chartScores = [
-    calculateDimensionScore(scores.slice(0, 6)),
-    calculateDimensionScore(scores.slice(6, 12)),
-    calculateDimensionScore(scores.slice(12, 18)),
-    calculateDimensionScore(scores.slice(18, 24))
-  ];
-
-  // 차트 데이터 설정
-  const chartData = {
-    labels: labels,
-    datasets: [{
-      label: isStudent ? '학생 MBTI 성향' : '성인 MBTI 성향',
-      data: chartScores,
-      backgroundColor: isStudent ? 'rgba(75, 192, 192, 0.2)' : 'rgba(153, 102, 255, 0.2)',
-      borderColor: isStudent ? 'rgba(75, 192, 192, 1)' : 'rgba(153, 102, 255, 1)',
-      borderWidth: 2,
-      pointBackgroundColor: isStudent ? 'rgba(75, 192, 192, 1)' : 'rgba(153, 102, 255, 1)',
-      pointBorderColor: '#fff',
-      pointHoverBackgroundColor: '#fff',
-      pointHoverBorderColor: isStudent ? 'rgba(75, 192, 192, 1)' : 'rgba(153, 102, 255, 1)'
-    }]
-  };
-
-  // 차트 옵션 설정
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    scales: {
-      r: {
-        min: 0,
-        max: 5,
-        ticks: {
-          stepSize: 1,
-          color: '#333'
-        },
-        pointLabels: {
-          color: '#333',
-          font: {
-            size: 14,
-            weight: 'bold'
-          }
-        },
-        grid: {
-          color: 'rgba(0, 0, 0, 0.1)'
-        },
-        angleLines: {
-          color: 'rgba(0, 0, 0, 0.1)'
-        }
-      }
-    },
-    plugins: {
-      legend: {
-        position: 'top',
-        labels: {
-          font: {
-            size: 14,
-            weight: 'bold'
-          }
-        }
-      }
+  try {
+    const existingChart = Chart.getChart('mbtiChart');
+    if (existingChart) {
+      existingChart.destroy();
     }
-  };
 
-  // 기존 차트가 있다면 제거
-  const existingChart = Chart.getChart('resultRadar');
-  if (existingChart) {
-    existingChart.destroy();
+    const labels = ['E-I', 'S-N', 'T-F', 'J-P'];
+    const chartScores = [
+      calculateDimensionScore(scores.slice(0, 6)),
+      calculateDimensionScore(scores.slice(6, 12)),
+      calculateDimensionScore(scores.slice(12, 18)),
+      calculateDimensionScore(scores.slice(18, 24))
+    ];
+
+    const chartCtx = document.getElementById('mbtiChart').getContext('2d');
+    new Chart(chartCtx, {
+      type: 'radar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'MBTI 점수 합계 (최대 30점)',
+          data: chartScores,
+          fill: true,
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderColor: 'rgb(54, 162, 235)',
+          pointBackgroundColor: 'rgb(54, 162, 235)',
+          pointBorderColor: '#fff',
+          pointHoverBackgroundColor: '#fff',
+          pointHoverBorderColor: 'rgb(54, 162, 235)'
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' },
+          title: {
+            display: true,
+            text: 'MBTI 4개 차원의 점수 합계'
+          }
+        },
+        scales: {
+          r: {
+            ticks: { stepSize: 5 },
+            angleLines: { display: true },
+            suggestedMin: 0,
+            suggestedMax: 30
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.error('차트 생성 중 오류 발생:', error);
+    alert('차트 생성 중 오류가 발생했습니다. 페이지를 새로고침해주세요.');
   }
-
-  // 새로운 차트 생성
-  new Chart(document.getElementById('resultRadar'), {
-    type: 'radar',
-    data: chartData,
-    options: chartOptions
-  });
 }
 
 function calculateDimensionScore(scores) {
-  // 5점 척도 점수를 0-5 범위로 변환
-  const sum = scores.reduce((a, b) => a + b, 0);
-  return (sum / scores.length) - 1; // 1-5 범위를 0-4 범위로 변환
+  return scores.reduce((acc, cur) => acc + cur, 0);
 }
 
-function average(arr) {
-  return arr.reduce((a, b) => a + b, 0) / arr.length;
+// PDF 생성 함수
+async function generatePDF() {
+  try {
+    if (typeof html2canvas === 'undefined' || typeof jsPDF === 'undefined') {
+      throw new Error('필요한 라이브러리가 로드되지 않았습니다.');
+    }
+
+    // PDF로 저장할 컨텐츠 영역
+    const element = document.getElementById('pdf-content');
+
+    // html2canvas 옵션 설정
+    const options = {
+      scale: 2, // 해상도 2배로 설정
+      useCORS: true, // CORS 이미지 허용
+      logging: false, // 로깅 비활성화
+      backgroundColor: '#ffffff' // 배경색 설정
+    };
+
+    // HTML을 캔버스로 변환
+    const canvas = await html2canvas(element, options);
+
+    // 캔버스 크기 계산
+    const imgWidth = 210; // A4 너비 (mm)
+    const pageHeight = 297; // A4 높이 (mm)
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    // PDF 생성
+    const pdf = new jsPDF('p', 'mm', 'a4');
+
+    // 이미지 추가
+    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight);
+
+    return pdf;
+  } catch (error) {
+    console.error('PDF 생성 중 오류 발생:', error);
+    throw new Error(`PDF 생성 중 오류가 발생했습니다: ${error.message}`);
+  }
 }
 
-document.getElementById('save-pdf').addEventListener('click', () => {
-  import('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js').then(() => {
-    html2canvas(document.body).then(canvas => {
-      const imgData = canvas.toDataURL('image/png');
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF();
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-      const filename = studentScores ? '학생용_MBTI_결과.pdf' : '성인용_MBTI_결과.pdf';
-      pdf.save(filename);
+// 메인 이벤트 핸들러
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    // 성인/학생 구분 플래그 확인
+    const isStudent = localStorage.getItem('isStudent') === 'true';
+
+    // 점수 데이터 가져오기
+    const scores = JSON.parse(localStorage.getItem(isStudent ? 'studentScores' : 'adultScores') || '[]');
+
+    // 점수 데이터 유효성 검사
+    if (!scores || scores.length !== 24) {
+      throw new Error('올바른 설문 결과가 없습니다.');
+    }
+
+    // MBTI 유형 계산
+    const mbtiType = calcMBTI(scores);
+
+    // 결과 데이터 가져오기
+    const resultData = isStudent ? mbtiDescriptionsStudent[mbtiType] : mbtiDescriptionsAdult[mbtiType];
+    if (!resultData) {
+      throw new Error('해당 MBTI 유형의 결과 데이터를 찾을 수 없습니다.');
+    }
+
+    // 결과 표시
+    document.getElementById('mbti-type').textContent = `${mbtiType} (${resultData.name})`;
+    document.getElementById('mbti-desc').textContent = resultData.desc;
+    document.getElementById('recommend').textContent = resultData.recommend;
+
+    // 성경 인물/구절 표시
+    const bibleInfo = isStudent ? mbtiBibleMap[mbtiType].new : mbtiBibleMap[mbtiType].old;
+    document.getElementById('bible-person').textContent = bibleInfo.name;
+    document.getElementById('bible-verse').textContent = bibleInfo.verse;
+    document.getElementById('bible-text').textContent = bibleInfo.text;
+
+    // 차트 생성
+    createMBTIChart(scores);
+
+    // SWOT 분석 표시
+    const swot = getSWOT(mbtiType, isStudent);
+    document.getElementById('strengths').innerHTML = `<h3>강점</h3>${swot.strengths.replace(/\n/g, '<br>')}`;
+    document.getElementById('weaknesses').innerHTML = `<h3>약점</h3>${swot.weaknesses.replace(/\n/g, '<br>')}`;
+    document.getElementById('opportunities').innerHTML = `<h3>기회</h3>${swot.opportunities.replace(/\n/g, '<br>')}`;
+    document.getElementById('threats').innerHTML = `<h3>위협</h3>${swot.threats.replace(/\n/g, '<br>')}`;
+
+    // PDF 저장 버튼 이벤트 리스너
+    document.getElementById('save-pdf').addEventListener('click', async () => {
+      try {
+        // 버튼 숨김
+        document.querySelector('.result-btns').style.display = 'none';
+
+        // PDF 생성 및 저장
+        const pdf = await generatePDF();
+        pdf.save('MBTI_결과.pdf');
+
+        // 버튼 다시 표시
+        setTimeout(() => {
+          document.querySelector('.result-btns').style.display = 'flex';
+        }, 1000);
+      } catch (error) {
+        console.error('PDF 저장 중 오류 발생:', error);
+        alert(`PDF 저장 중 오류가 발생했습니다: ${error.message}`);
+        document.querySelector('.result-btns').style.display = 'flex';
+      }
     });
-  });
+
+  } catch (error) {
+    console.error('결과 표시 중 오류 발생:', error);
+    alert(error.message);
+    window.location.href = 'index.html';
+  }
 });
