@@ -1,5 +1,44 @@
-const studentScores = JSON.parse(localStorage.getItem('studentScores') || 'null');
-const adultAnswers = JSON.parse(localStorage.getItem('adultAnswers') || 'null');
+const studentScores = JSON.parse(localStorage.getItem('studentScores') || '[]');
+const adultScores = JSON.parse(localStorage.getItem('adultScores') || '[]');
+
+// 페이지 로드 시 초기화
+document.addEventListener('DOMContentLoaded', () => {
+  // 성인/학생 구분 플래그 확인
+  const isStudent = localStorage.getItem('isStudent') === 'true';
+  
+  // 해당하는 점수 데이터 가져오기
+  const scores = isStudent ? studentScores : adultScores;
+  
+  if (!scores || scores.length !== 24) {
+    alert('올바른 설문 결과가 없습니다. 다시 시작해주세요.');
+    window.location.href = 'index.html';
+    return;
+  }
+
+  // MBTI 유형 계산
+  const mbtiType = calcMBTI(scores);
+  
+  // 결과 데이터 가져오기
+  const resultData = isStudent ? mbtiDescriptionsStudent[mbtiType] : mbtiDescriptionsAdult[mbtiType];
+  
+  // 결과 표시 업데이트
+  document.getElementById('mbti-type').textContent = resultData.name;
+  document.getElementById('mbti-desc').textContent = resultData.desc;
+  document.getElementById('recommend').textContent = resultData.recommend;
+  
+  // 성경 인물/구절 표시
+  const bibleInfo = isStudent ? mbtiBibleMap[mbtiType].new : mbtiBibleMap[mbtiType].old;
+  document.getElementById('bible-person').textContent = bibleInfo.name;
+  document.getElementById('bible-verse').textContent = bibleInfo.verse;
+  document.getElementById('bible-text').textContent = bibleInfo.text;
+  
+  // 차트 생성
+  createMBTIChart(scores);
+  
+  // SWOT 분석 표시
+  const swotAnalysis = getSWOT(scores, isStudent);
+  document.getElementById('swot-analysis').innerHTML = swotAnalysis;
+});
 
 let labels = ['E-I', 'S-N', 'T-F', 'J-P'];
 let scores = [];
@@ -255,96 +294,152 @@ function calcMBTI(scores) {
 
 let bibleInfo = null;
 
-if (studentScores) {
-  if (studentScores.length === 24) {
-    mbtiType = calcMBTI(studentScores);
-    bibleInfo = mbtiBibleMap[mbtiType];
+function displayResult() {
+  // localStorage에서 성인/학생 구분을 위한 플래그 가져오기
+  const isStudent = localStorage.getItem('isStudent') === 'true';
+
+  // 해당하는 설문 결과 가져오기
+  const scores = JSON.parse(localStorage.getItem(isStudent ? 'studentScores' : 'adultScores'));
+
+  if (!scores) {
+    alert('설문 결과가 없습니다. 처음부터 다시 시작해주세요.');
+    window.location.href = 'index.html';
+    return;
   }
-  scores = [
-    studentScores.slice(0, 6).reduce((a, b) => a + (b === 0 ? 1 : 0), 0),
-    studentScores.slice(6, 12).reduce((a, b) => a + (b === 0 ? 1 : 0), 0),
-    studentScores.slice(12, 18).reduce((a, b) => a + (b === 0 ? 1 : 0), 0),
-    studentScores.slice(18, 24).reduce((a, b) => a + (b === 0 ? 1 : 0), 0)
-  ];
-  const mbtiDesc = mbtiDescriptionsStudent[mbtiType];
-  description = `<h2>나의 MBTI: <span style='color:#4e54c8;'>${mbtiType}</span></h2>` +
-    (bibleInfo ? `<div class='bible-matching'><strong>구약 대표:</strong> ${bibleInfo.old.name} (${bibleInfo.old.verse})<br><span style='color:#555;'>${bibleInfo.old.text}</span><br><strong>신약 대표:</strong> ${bibleInfo.new.name} (${bibleInfo.new.verse})<br><span style='color:#555;'>${bibleInfo.new.text}</span></div><hr>` : "") +
-    `<h3>🧒 학생용 결과 해석</h3><p><strong>${mbtiDesc.name}</strong><br>${mbtiDesc.desc}</p><p><strong>추천 활동:</strong> ${mbtiDesc.recommend}</p>` +
-    `<hr><h4>학생 MBTI 4축 해석</h4><ul>` +
-    `<li><strong>E-I:</strong> ` + (scores[0] >= 3 ? "친구들과 함께 있을 때 에너지를 얻고, 모둠 활동이나 발표에 적극적으로 참여합니다." : "혼자만의 시간에서 힘을 얻고, 조용히 생각하거나 글쓰기를 즐깁니다.") + `</li>` +
-    `<li><strong>S-N:</strong> ` + (scores[1] >= 3 ? "새로운 아이디어와 상상을 즐기며, 창의적인 활동에 흥미가 많습니다." : "현실적이고 구체적인 사실에 집중하며, 주어진 일을 꼼꼼하게 처리합니다.") + `</li>` +
-    `<li><strong>T-F:</strong> ` + (scores[2] >= 3 ? "논리적이고 객관적으로 상황을 판단하며, 공정함을 중시합니다." : "친구의 감정을 잘 이해하고, 배려와 협동을 소중히 여깁니다.") + `</li>` +
-    `<li><strong>J-P:</strong> ` + (scores[3] >= 3 ? "계획적으로 준비하고, 맡은 일을 책임감 있게 완수합니다." : "상황에 맞게 유연하게 대처하며, 새로운 변화에도 잘 적응합니다.") + `</li>` +
-    `</ul>`;
-} else if (adultAnswers) {
-  if (adultAnswers.length === 24) {
-    let binScores = adultAnswers.map(v => v <= 3 ? 0 : 1);
-    mbtiType = calcMBTI(binScores);
-    bibleInfo = mbtiBibleMap[mbtiType];
-  }
-  scores = [
-    average(adultAnswers.slice(0, 6)),
-    average(adultAnswers.slice(6, 12)),
-    average(adultAnswers.slice(12, 18)),
-    average(adultAnswers.slice(18, 24))
-  ];
-  const mbtiDesc = mbtiDescriptionsAdult[mbtiType];
-  description = `<h2>나의 MBTI: <span style='color:#4e54c8;'>${mbtiType}</span></h2>` +
-    (bibleInfo ? `<div class='bible-matching'><strong>구약 대표:</strong> ${bibleInfo.old.name} (${bibleInfo.old.verse})<br><span style='color:#555;'>${bibleInfo.old.text}</span><br><strong>신약 대표:</strong> ${bibleInfo.new.name} (${bibleInfo.new.verse})<br><span style='color:#555;'>${bibleInfo.new.text}</span></div><hr>` : "") +
-    `<h3>🧑 성인용 결과 해석</h3><p><strong>${mbtiDesc.name}</strong><br>${mbtiDesc.desc}</p><p><strong>추천 사역:</strong> ${mbtiDesc.recommend}</p>` +
-    `<hr><h4>성인 MBTI 4축 해석</h4><ul>` +
-    `<li><strong>E-I:</strong> ` + (scores[0] >= 3 ? "사람들과 함께 있을 때 에너지를 얻고, 공동체 활동이나 모임에서 적극적으로 의견을 나눕니다." : "혼자만의 시간에서 힘을 얻고, 깊이 있는 대화와 묵상을 좋아합니다.") + `</li>` +
-    `<li><strong>S-N:</strong> ` + (scores[1] >= 3 ? "미래지향적이며, 새로운 아이디어와 비전을 제시하고 말씀의 의미를 깊이 묵상합니다." : "현실적이고 구체적인 사실에 집중하며, 주어진 사역을 꼼꼼하게 감당합니다.") + `</li>` +
-    `<li><strong>T-F:</strong> ` + (scores[2] >= 3 ? "논리적이고 객관적으로 상황을 판단하며, 공정함과 원칙을 중시합니다." : "타인의 감정에 공감하고, 따뜻하게 배려하며 공동체의 화목을 소중히 여깁니다.") + `</li>` +
-    `<li><strong>J-P:</strong> ` + (scores[3] >= 3 ? "계획적이고 체계적으로 일하며, 목표를 세우고 책임감 있게 사역을 완수합니다." : "유연하고 즉흥적으로 상황에 대처하며, 변화와 새로운 기회에 열려 있습니다.") + `</li>` +
-    `</ul>`;
+
+  // MBTI 유형 계산
+  const mbtiType = determineMBTIType(scores);
+
+  // 결과 데이터 가져오기
+  const resultData = isStudent ? mbtiDescriptionsStudent[mbtiType] : mbtiDescriptionsAdult[mbtiType];
+
+  // 결과 표시
+  document.getElementById('mbti-type').textContent = mbtiType;
+  document.getElementById('mbti-desc').textContent = resultData.desc;
+  document.getElementById('bible-person').textContent = resultData.biblePerson;
+  document.getElementById('bible-verse').textContent = resultData.bibleVerse;
+  document.getElementById('bible-text').textContent = resultData.bibleText;
+  document.getElementById('recommend').textContent = resultData.recommend;
+
+  // SWOT 분석 결과 표시
+  const swot = getSWOT(mbtiType, isStudent);
+  document.getElementById('strengths').textContent = swot.strengths;
+  document.getElementById('weaknesses').textContent = swot.weaknesses;
+  document.getElementById('opportunities').textContent = swot.opportunities;
+  document.getElementById('threats').textContent = swot.threats;
+
+  // 차트 생성
+  createMBTIChart(scores);
 }
 
-document.getElementById('swot-section').innerHTML =
-  description + getSWOT(scores.map(s => (s >= 3 ? '강' : '약')));
+function getSWOT(type, isStudent) {
+  if (isStudent) {
+    return {
+      strengths: `학생으로서 ${type} 유형의 강점은...`,
+      weaknesses: `학생으로서 ${type} 유형의 약점은...`,
+      opportunities: `학생으로서 ${type} 유형의 기회는...`,
+      threats: `학생으로서 ${type} 유형의 위협은...`
+    };
+  } else {
+    return {
+      strengths: `성인으로서 ${type} 유형의 강점은...`,
+      weaknesses: `성인으로서 ${type} 유형의 약점은...`,
+      opportunities: `성인으로서 ${type} 유형의 기회는...`,
+      threats: `성인으로서 ${type} 유형의 위협은...`
+    };
+  }
+}
 
-new Chart(document.getElementById('resultRadar'), {
-  type: 'radar',
-  data: {
+function createMBTIChart(scores) {
+  const isStudent = localStorage.getItem('isStudent') === 'true';
+  const labels = ['E-I', 'S-N', 'T-F', 'J-P'];
+
+  // 점수 계산
+  const chartScores = [
+    calculateDimensionScore(scores.slice(0, 6)),
+    calculateDimensionScore(scores.slice(6, 12)),
+    calculateDimensionScore(scores.slice(12, 18)),
+    calculateDimensionScore(scores.slice(18, 24))
+  ];
+
+  // 차트 데이터 설정
+  const chartData = {
     labels: labels,
     datasets: [{
-      label: studentScores ? '학생 성향 점수' : 'MBTI 성향 점수',
-      data: scores,
-      backgroundColor: studentScores ? 'rgba(153,102,255,0.2)' : 'rgba(75,192,192,0.2)',
-      borderColor: studentScores ? 'rgba(153,102,255,1)' : 'rgba(75,192,192,1)',
-      borderWidth: 2
+      label: isStudent ? '학생 MBTI 성향' : '성인 MBTI 성향',
+      data: chartScores,
+      backgroundColor: isStudent ? 'rgba(75, 192, 192, 0.2)' : 'rgba(153, 102, 255, 0.2)',
+      borderColor: isStudent ? 'rgba(75, 192, 192, 1)' : 'rgba(153, 102, 255, 1)',
+      borderWidth: 2,
+      pointBackgroundColor: isStudent ? 'rgba(75, 192, 192, 1)' : 'rgba(153, 102, 255, 1)',
+      pointBorderColor: '#fff',
+      pointHoverBackgroundColor: '#fff',
+      pointHoverBorderColor: isStudent ? 'rgba(75, 192, 192, 1)' : 'rgba(153, 102, 255, 1)'
     }]
-  },
-  options: {
+  };
+
+  // 차트 옵션 설정
+  const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     scales: {
       r: {
-        min: 1,
-        max: 6,
+        min: 0,
+        max: 5,
         ticks: {
           stepSize: 1,
           color: '#333'
+        },
+        pointLabels: {
+          color: '#333',
+          font: {
+            size: 14,
+            weight: 'bold'
+          }
+        },
+        grid: {
+          color: 'rgba(0, 0, 0, 0.1)'
+        },
+        angleLines: {
+          color: 'rgba(0, 0, 0, 0.1)'
+        }
+      }
+    },
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          font: {
+            size: 14,
+            weight: 'bold'
+          }
         }
       }
     }
+  };
+
+  // 기존 차트가 있다면 제거
+  const existingChart = Chart.getChart('resultRadar');
+  if (existingChart) {
+    existingChart.destroy();
   }
-});
+
+  // 새로운 차트 생성
+  new Chart(document.getElementById('resultRadar'), {
+    type: 'radar',
+    data: chartData,
+    options: chartOptions
+  });
+}
+
+function calculateDimensionScore(scores) {
+  // 5점 척도 점수를 0-5 범위로 변환
+  const sum = scores.reduce((a, b) => a + b, 0);
+  return (sum / scores.length) - 1; // 1-5 범위를 0-4 범위로 변환
+}
 
 function average(arr) {
   return arr.reduce((a, b) => a + b, 0) / arr.length;
-}
-
-function getSWOT(type) {
-  return `
-    <h3>💪 강점 (Strengths)</h3>
-    <p>${type[0] === '강' ? '복음 전도와 공동체 활동에 활발히 참여합니다.' : '깊이 있는 묵상과 집중력이 뛰어납니다.'}</p>
-    <h3>🧩 약점 (Weaknesses)</h3>
-    <p>${type[1] === '약' ? '새로운 시도보다는 익숙한 것에 머무를 수 있습니다.' : '현실적인 세부 사항을 놓칠 수 있습니다.'}</p>
-    <h3>🌱 기회 (Opportunities)</h3>
-    <p>${type[2] === '강' ? '공정하고 이성적인 판단을 바탕으로 신뢰를 얻습니다.' : '사람들과 감정적으로 잘 연결될 수 있습니다.'}</p>
-    <h3>⚠️ 위협 (Threats)</h3>
-    <p>${type[3] === '약' ? '계획 없이 흘러가며 마무리가 어려울 수 있습니다.' : '융통성이 부족해 보일 수 있습니다.'}</p>
-  `;
 }
 
 document.getElementById('save-pdf').addEventListener('click', () => {

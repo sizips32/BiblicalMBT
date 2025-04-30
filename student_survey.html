@@ -1,169 +1,158 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>학생용 MBTI 설문</title>
   <link rel="icon" type="image/svg+xml" href="assets/cross_favicon.svg" />
-  <link rel="icon" type="image/png" href="assets/cross_bible_icon.png" />
   <style>
     body {
       font-family: Arial, sans-serif;
+      background-color: #f0f8ff;
       text-align: center;
-      background-color: #f5f5f5;
-      padding: 40px 0;
+      padding: 40px;
     }
-    .survey-container {
-      background: #fff;
-      border-radius: 18px;
-      box-shadow: 0 2px 16px 0 rgba(80, 100, 180, 0.12);
-      max-width: 420px;
-      margin: 0 auto;
-      padding: 32px 24px 24px 24px;
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
-    h1 {
-      color: #3b4a6b;
-      margin-bottom: 18px;
-    }
+
     .question {
-      margin: 22px 0 18px 0;
-      text-align: left;
-      font-size: 1.08rem;
+      font-size: 20px;
+      margin-bottom: 20px;
     }
-    .choice-buttons {
-      margin-top: 8px;
-      margin-bottom: 10px;
-    }
-    .nav-buttons {
-      margin-top: 20px;
-      display: flex;
-      justify-content: space-between;
-    }
-    .nav-buttons button {
-      padding: 12px 36px;
-      font-size: 1.1rem;
-      background: linear-gradient(90deg, #4e54c8 0%, #8f94fb 100%);
-      color: white;
-      border: none;
+
+    .scale-buttons button {
+      margin: 5px;
+      padding: 10px 20px;
+      font-size: 16px;
       border-radius: 8px;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
       cursor: pointer;
-      box-shadow: 0 2px 10px 0 rgba(80, 100, 180, 0.13);
-      transition: background 0.18s, transform 0.18s;
+      transition: background 0.18s, color 0.18s, border 0.18s, transform 0.13s;
     }
-    .nav-buttons button:hover {
-      background: linear-gradient(90deg, #8f94fb 0%, #4e54c8 100%);
-      transform: translateY(-2px) scale(1.03);
+
+    .scale-buttons button.selected {
+      background-color: #fff;
+      color: #d32f2f;
+      border: 2.5px solid #d32f2f;
+      font-weight: bold;
+      transform: scale(1.07);
+    }
+
+    .scale-buttons button:hover {
+      background-color: #45a049;
     }
   </style>
 </head>
+
 <body>
-  <div class="survey-container">
-    <h1>학생용 MBTI 설문</h1>
+  <div class="container">
+    <h1>학생용 성경적 MBTI 설문</h1>
     <div class="question" id="question-box">질문을 불러오는 중입니다...</div>
-    <div class="choice-buttons"></div>
-    <div class="nav-buttons">
+    <div class="scale-buttons"></div>
+    <div class="nav-buttons" style="margin-top:20px; display:flex; justify-content:space-between;">
       <button id="prev-btn" style="visibility:hidden;">이전</button>
       <button id="next-btn">다음</button>
     </div>
   </div>
+
   <script>
     const questions = [
-      "나는 친구들과 함께 있을 때 에너지가 생긴다.",
-      "나는 혼자 있는 시간이 필요하다.",
-      "나는 새로운 아이디어를 상상하는 것을 좋아한다.",
-      "나는 현실적인 것이 더 중요하다고 생각한다.",
-      "나는 친구의 기분을 잘 이해한다.",
-      "나는 논리적으로 생각하는 편이다.",
-      "나는 계획을 세워 행동하는 것이 편하다.",
-      "나는 즉흥적으로 행동하는 경우가 많다.",
-      "나는 여러 사람과 어울리는 것이 즐겁다.",
-      "나는 조용한 환경에서 집중이 잘 된다.",
-      "나는 미래를 상상하는 것이 즐겁다.",
-      "나는 구체적인 사실을 중시한다.",
-      "나는 남을 도와주는 것이 기쁘다.",
-      "나는 상황을 냉정하게 판단하려 한다.",
-      "나는 미리 준비하는 것을 좋아한다.",
-      "나는 변화에 쉽게 적응한다.",
-      "나는 발표나 토론이 재미있다.",
-      "나는 깊이 생각하는 시간이 필요하다.",
-      "나는 창의적인 활동이 좋다.",
-      "나는 실용적인 것이 좋다.",
-      "나는 친구의 고민을 잘 들어준다.",
-      "나는 객관적으로 문제를 본다.",
-      "나는 일정을 지키는 편이다.",
-      "나는 상황에 따라 유연하게 움직인다."
+      "나는 친구들과 함께 교회 활동을 할 때 에너지가 넘쳐요.",
+      "조용한 곳에서 혼자 기도하고 성경을 읽는 시간이 나에게 중요해요.",
+      "새로운 친구를 만나는 것이 신앙 성장에 도움이 된다고 생각해요.",
+      "혼자만의 시간을 통해 내 믿음을 점검하고 성장해요.",
+      "복음을 전할 때 자연스럽고 적극적으로 나설 수 있어요.",
+      "개인적으로 하나님께 기도하고 말씀을 묵상하는 시간이 꼭 필요해요.",
+      "현재 내게 주어진 일상 속에서 하나님의 뜻을 찾으려고 노력해요.",
+      "미래에 대한 하나님의 비전과 인도하심을 자주 상상해요.",
+      "작은 일에도 신실하게 임하는 것이 신앙인의 자세라고 생각해요.",
+      "상상력과 영적 통찰을 통해 하나님의 뜻을 더 깊이 이해하려 해요.",
+      "실행 가능한 계획을 세워 신앙을 실천하는 편이에요.",
+      "계획보다는 성령의 인도하심에 따라 즉흥적으로 움직일 때가 많아요.",
+      "신앙생활에서 옳고 그름을 분명하게 구분하려 해요.",
+      "친구들의 감정과 상황에 공감하며 배려하는 것이 중요해요.",
+      "성경 말씀을 기준 삼아 이성적으로 판단하려 해요.",
+      "다른 친구의 아픔에 함께 공감하고 위로하려 노력해요.",
+      "진리와 원칙을 지키기 위해 단호하게 행동할 수 있어요.",
+      "친구들의 약점을 감싸 안고 이해하려 해요.",
+      "계획을 세우고 그에 따라 꾸준히 실천하는 것을 선호해요.",
+      "계획이 바뀌더라도 유연하게 받아들이고 순종해요.",
+      "예배나 봉사에서 정해진 순서와 규칙을 중요하게 생각해요.",
+      "하나님의 뜻에 민감하게 반응하며 새로운 시도에 열려 있어요.",
+      "주어진 일을 끝까지 책임감 있게 완수하려 해요.",
+      "계획보다 하나님께서 주시는 기회에 믿음으로 순종하는 편이에요."
     ];
-    const choices = [
-      ["그렇다", "아니다"],
-      ["아니다", "그렇다"],
-      ["그렇다", "아니다"],
-      ["아니다", "그렇다"],
-      ["그렇다", "아니다"],
-      ["아니다", "그렇다"],
-      ["그렇다", "아니다"],
-      ["아니다", "그렇다"],
-      ["그렇다", "아니다"],
-      ["아니다", "그렇다"],
-      ["그렇다", "아니다"],
-      ["아니다", "그렇다"],
-      ["그렇다", "아니다"],
-      ["아니다", "그렇다"],
-      ["그렇다", "아니다"],
-      ["아니다", "그렇다"],
-      ["그렇다", "아니다"],
-      ["아니다", "그렇다"],
-      ["그렇다", "아니다"],
-      ["아니다", "그렇다"],
-      ["그렇다", "아니다"],
-      ["아니다", "그렇다"],
-      ["그렇다", "아니다"],
-      ["아니다", "그렇다"]
-    ];
+
+    const scaleLabels = ["매우 아니다", "아니다", "보통이다", "그렇다", "매우 그렇다"];
+
     let current = 0;
     const answers = [];
-    function renderQuestion() {
+
+    function loadQuestion() {
+      if (current >= questions.length) {
+        localStorage.setItem('studentScores', JSON.stringify(answers));
+        window.location.href = 'result.html';
+        return;
+      }
       document.getElementById("question-box").textContent = `Q${current + 1}. ${questions[current]}`;
-      const choiceDiv = document.querySelector('.choice-buttons');
-      choiceDiv.innerHTML = '';
-      choices[current].forEach((label, idx) => {
-        const btn = document.createElement('button');
-        btn.textContent = label;
-        btn.style.margin = '0 10px';
-        btn.style.padding = '10px 24px';
-        btn.style.fontSize = '1rem';
-        btn.style.borderRadius = '8px';
-        btn.style.border = '1px solid #4e54c8';
-        btn.style.background = (answers[current] === idx) ? '#4e54c8' : 'white';
-        btn.style.color = (answers[current] === idx) ? 'white' : '#333';
-        btn.onclick = function() {
-          answers[current] = idx;
-          renderQuestion();
-        };
-        choiceDiv.appendChild(btn);
-      });
       document.getElementById('prev-btn').style.visibility = current === 0 ? 'hidden' : 'visible';
       document.getElementById('next-btn').textContent = current === questions.length - 1 ? '제출' : '다음';
+      const scaleBtns = document.querySelectorAll('.scale-buttons button');
+      scaleBtns.forEach((btn, idx) => {
+        if (answers[current] === idx + 1) {
+          btn.classList.add('selected');
+        } else {
+          btn.classList.remove('selected');
+        }
+      });
     }
-    document.getElementById('prev-btn').onclick = function() {
+
+    function submitAnswer(score) {
+      answers[current] = score;
+      loadQuestion();
+    }
+
+    document.getElementById('prev-btn').onclick = function () {
       if (current > 0) {
         current--;
-        renderQuestion();
+        loadQuestion();
       }
     };
-    document.getElementById('next-btn').onclick = function() {
-      if (answers[current] !== undefined) {
-        if (current === questions.length - 1) {
-          localStorage.setItem('studentScores', JSON.stringify(answers));
-          window.location.href = 'result.html';
-        } else {
-          current++;
-          renderQuestion();
-        }
+    document.getElementById('next-btn').onclick = function () {
+      if (answers[current]) {
+        current++;
+        loadQuestion();
       } else {
         alert('선택지를 먼저 선택해 주세요.');
       }
     };
-    renderQuestion();
+
+    function renderScaleButtons() {
+      const scaleDiv = document.querySelector('.scale-buttons');
+      scaleDiv.innerHTML = '';
+      scaleLabels.forEach((label, idx) => {
+        const btn = document.createElement('button');
+        btn.textContent = label;
+        btn.onclick = function () { submitAnswer(idx + 1); };
+        if (answers[current] === idx + 1) {
+          btn.classList.add('selected');
+        }
+        scaleDiv.appendChild(btn);
+      });
+    }
+    renderScaleButtons();
+    loadQuestion();
   </script>
 </body>
+
 </html>
