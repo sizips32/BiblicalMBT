@@ -1,5 +1,5 @@
 const studentScores = JSON.parse(localStorage.getItem('studentScores') || 'null');
-const adultAnswers = JSON.parse(localStorage.getItem('adultAnswers') || 'null');
+const adultScores = JSON.parse(localStorage.getItem('adultScores') || 'null');
 
 let labels = ['E-I', 'S-N', 'T-F', 'J-P'];
 let scores = [];
@@ -286,7 +286,15 @@ function analyzeMBTI(mbtiType, scores, isStudent) {
 }
 
 // 결과 분석 로직
-if (studentScores && studentScores.length === 24) {
+if (adultScores && adultScores.length === 24) {
+  mbtiType = calcMBTI(adultScores);
+  scores = adultScores.reduce((acc, curr, i) => {
+    const axis = Math.floor(i / 6);
+    acc[axis] = (acc[axis] || 0) + (curr === 0 ? 1 : 0);
+    return acc;
+  }, []);
+  analyzeMBTI(mbtiType, scores, false);
+} else if (studentScores && studentScores.length === 24) {
   mbtiType = calcMBTI(studentScores);
   scores = studentScores.reduce((acc, curr, i) => {
     const axis = Math.floor(i / 6);
@@ -294,14 +302,6 @@ if (studentScores && studentScores.length === 24) {
     return acc;
   }, []);
   analyzeMBTI(mbtiType, scores, true);
-} else if (adultAnswers && adultAnswers.length === 24) {
-  mbtiType = calcMBTI(adultAnswers);
-  scores = adultAnswers.reduce((acc, curr, i) => {
-    const axis = Math.floor(i / 6);
-    acc[axis] = (acc[axis] || 0) + (curr === 0 ? 1 : 0);
-    return acc;
-  }, []);
-  analyzeMBTI(mbtiType, scores, false);
 }
 
 document.getElementById('swot-section').innerHTML =
@@ -312,10 +312,10 @@ new Chart(document.getElementById('resultRadar'), {
   data: {
     labels: labels,
     datasets: [{
-      label: studentScores ? '학생 성향 점수' : 'MBTI 성향 점수',
+      label: adultScores ? '성인 성향 점수' : '학생 성향 점수',
       data: scores,
-      backgroundColor: studentScores ? 'rgba(153,102,255,0.2)' : 'rgba(75,192,192,0.2)',
-      borderColor: studentScores ? 'rgba(153,102,255,1)' : 'rgba(75,192,192,1)',
+      backgroundColor: adultScores ? 'rgba(75,192,192,0.2)' : 'rgba(153,102,255,0.2)',
+      borderColor: adultScores ? 'rgba(75,192,192,1)' : 'rgba(153,102,255,1)',
       borderWidth: 2
     }]
   },
