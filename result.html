@@ -1,39 +1,82 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MBTI 결과</title>
-    <link rel="icon" type="image/svg+xml" href="assets/cross_favicon.svg" />
-    <link rel="icon" type="image/png" href="assets/cross_bible_icon.png" />
-    <link rel="stylesheet" href="result_style.css" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MBTI 결과</title>
+  <link rel="icon" type="image/svg+xml" href="assets/bible_mbti_logo.svg" />
+  <link rel="icon" type="image/png" href="assets/cross_bible_icon.png" />
+  <link rel="stylesheet" href="result_style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-customfonts/0.0.72/jspdf.customfonts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@fontsource/noto-sans-kr/400.css"></script>
+  <script>
+    // jsPDF 전역 객체 설정
+    window.jsPDF = window.jspdf.jsPDF;
+
+    // 한글 폰트 설정
+    const font = 'Noto Sans KR';
+    const fontStyle = 'normal';
+    const fontVariant = 'normal';
+    const fontWeight = 'normal';
+    const fontStretch = 'normal';
+    const fontSize = '16px';
+    const lineHeight = 'normal';
+    const fontFamily = 'Noto Sans KR, sans-serif';
+
+    document.documentElement.style.setProperty('--font-family', fontFamily);
+  </script>
 </head>
+
 <body>
+  <div id="pdf-content">
     <h1>나의 성경적 MBTI 결과</h1>
+    <div class="result-display">
+      <div class="mbti-info">
+        <h2 id="mbti-type"></h2>
+        <p id="mbti-desc"></p>
+        <p id="recommend"></p>
+      </div>
+      <div class="bible-info">
+        <h3>성경 인물/구절</h3>
+        <p id="bible-person"></p>
+        <p id="bible-verse"></p>
+        <p id="bible-text"></p>
+      </div>
+    </div>
     <div class="chart-container">
-        <canvas id="resultRadar"></canvas>
+      <canvas id="mbtiChart"></canvas>
     </div>
-    <div class="swot" id="swot-section"></div>
-    <div class="result-btns" style="margin-top:30px;">
-        <button id="save-pdf">PDF로 저장하기</button>
-        <button id="reset-btn" style="margin-left:16px;background-color:#888;">초기화</button>
+    <div class="swot">
+      <div id="strengths"></div>
+      <div id="weaknesses"></div>
+      <div id="opportunities"></div>
+      <div id="threats"></div>
     </div>
-    <script src="result_scrpt.js"></script>
-    <script>
-      document.getElementById('reset-btn').addEventListener('click', function() {
-        localStorage.removeItem('studentScores');
-        localStorage.removeItem('adultAnswers');
-        window.location.href = 'index.html';
-      });
-      // PDF 저장 시 버튼 숨김
-      document.getElementById('save-pdf').addEventListener('click', function() {
-        document.querySelector('.result-btns').style.display = 'none';
-        setTimeout(function() {
-          document.querySelector('.result-btns').style.display = 'flex';
-        }, 1200);
-      });
-    </script>
+  </div>
+  <div class="result-btns" style="margin-top:30px;">
+    <button id="save-pdf">PDF로 저장하기</button>
+    <button id="reset-btn" style="margin-left:16px;background-color:#888;">초기화</button>
+  </div>
+  <script type="module" src="result_scrpt.js"></script>
+  <script>
+    document.getElementById('reset-btn').addEventListener('click', function () {
+      localStorage.removeItem('studentScores');
+      localStorage.removeItem('adultScores');
+      localStorage.removeItem('isStudent');
+      window.location.href = 'index.html';
+    });
+    // PDF 저장 시 버튼 숨김
+    document.getElementById('save-pdf').addEventListener('click', function () {
+      document.querySelector('.result-btns').style.display = 'none';
+      setTimeout(function () {
+        document.querySelector('.result-btns').style.display = 'flex';
+      }, 1200);
+    });
+  </script>
 </body>
+
 </html>

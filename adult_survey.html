@@ -93,7 +93,8 @@
 
     function loadQuestion() {
       if (current >= questions.length) {
-        localStorage.setItem('adultAnswers', JSON.stringify(answers));
+        localStorage.setItem('adultScores', JSON.stringify(answers));
+        localStorage.setItem('isStudent', 'false');
         window.location.href = 'result.html';
         return;
       }
