@@ -293,7 +293,37 @@ if (adultScores && adultScores.length === 24) {
     acc[axis] = (acc[axis] || 0) + (curr === 0 ? 1 : 0);
     return acc;
   }, []);
-  analyzeMBTI(mbtiType, scores, false);
+  
+  // 성인용 결과 분석
+  bibleInfo = mbtiBibleMap[mbtiType];
+  const mbtiDesc = mbtiDescriptionsAdult[mbtiType];
+  description = `
+    <h2>나의 MBTI: <span style='color:#4e54c8;'>${mbtiType}</span></h2>
+    ${bibleInfo ? `
+      <div class='bible-matching'>
+        <strong>구약 대표:</strong> ${bibleInfo.old.name} (${bibleInfo.old.verse})<br>
+        <span style='color:#555;'>${bibleInfo.old.text}</span><br>
+        <strong>신약 대표:</strong> ${bibleInfo.new.name} (${bibleInfo.new.verse})<br>
+        <span style='color:#555;'>${bibleInfo.new.text}</span>
+      </div>
+      <hr>
+    ` : ""}
+    <h3>나의 성향 분석</h3>
+    <ul>
+      <li><strong>E-I:</strong> ${scores[0] >= 3 ? "외향적이고 활동적인 성향입니다." : "내향적이고 깊이 있는 성향입니다."}</li>
+      <li><strong>S-N:</strong> ${scores[1] >= 3 ? "실제적이고 현실적인 성향입니다." : "상상력이 풍부한 성향입니다."}</li>
+      <li><strong>T-F:</strong> ${scores[2] >= 3 ? "논리적이고 객관적인 성향입니다." : "감정적이고 공감적인 성향입니다."}</li>
+      <li><strong>J-P:</strong> ${scores[3] >= 3 ? "계획적이고 체계적인 성향입니다." : "유연하고 즉흥적인 성향입니다."}</li>
+    </ul>
+    ${mbtiDesc ? `
+      <h3>나의 사역 적성</h3>
+      <p>${mbtiDesc.desc}</p>
+      <p><strong>추천 사역:</strong> ${mbtiDesc.recommend}</p>
+    ` : ""}
+  `;
+  
+  document.getElementById('swot-section').innerHTML = getSWOT(mbtiType, false);
+  
 } else if (studentScores && studentScores.length === 24) {
   mbtiType = calcMBTI(studentScores);
   scores = studentScores.reduce((acc, curr, i) => {
@@ -301,7 +331,36 @@ if (adultScores && adultScores.length === 24) {
     acc[axis] = (acc[axis] || 0) + (curr === 0 ? 1 : 0);
     return acc;
   }, []);
-  analyzeMBTI(mbtiType, scores, true);
+  
+  // 학생용 결과 분석
+  bibleInfo = mbtiBibleMap[mbtiType];
+  const mbtiDesc = mbtiDescriptionsStudent[mbtiType];
+  description = `
+    <h2>나의 MBTI: <span style='color:#4e54c8;'>${mbtiType}</span></h2>
+    ${bibleInfo ? `
+      <div class='bible-matching'>
+        <strong>구약 대표:</strong> ${bibleInfo.old.name} (${bibleInfo.old.verse})<br>
+        <span style='color:#555;'>${bibleInfo.old.text}</span><br>
+        <strong>신약 대표:</strong> ${bibleInfo.new.name} (${bibleInfo.new.verse})<br>
+        <span style='color:#555;'>${bibleInfo.new.text}</span>
+      </div>
+      <hr>
+    ` : ""}
+    <h3>나의 성향 분석</h3>
+    <ul>
+      <li><strong>E-I:</strong> ${scores[0] >= 3 ? "친구들과 함께하는 것을 좋아해요." : "혼자 조용히 하는 것을 좋아해요."}</li>
+      <li><strong>S-N:</strong> ${scores[1] >= 3 ? "실제적이고 현실적인 성향이에요." : "상상력이 풍부한 성향이에요."}</li>
+      <li><strong>T-F:</strong> ${scores[2] >= 3 ? "논리적이고 객관적인 성향이에요." : "감정적이고 공감적인 성향이에요."}</li>
+      <li><strong>J-P:</strong> ${scores[3] >= 3 ? "계획적이고 체계적인 성향이에요." : "유연하고 즉흥적인 성향이에요."}</li>
+    </ul>
+    ${mbtiDesc ? `
+      <h3>나의 적성</h3>
+      <p>${mbtiDesc.desc}</p>
+      <p><strong>추천 활동:</strong> ${mbtiDesc.recommend}</p>
+    ` : ""}
+  `;
+  
+  document.getElementById('swot-section').innerHTML = getSWOT(mbtiType, true);
 }
 
 document.getElementById('swot-section').innerHTML =
