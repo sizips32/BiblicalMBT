@@ -4,22 +4,48 @@ import { mbtiDescriptionsAdult, mbtiDescriptionsStudent } from './data/mbtiDescr
 import { swotAnalysis } from './data/swotAnalysis.js';
 
 // 유틸리티 함수들
-function calcMBTI(scores) {
-  if (!Array.isArray(scores) || scores.length !== 24) {
+function calcMBTI(scores, isStudent) {
+  // 점수 배열 유효성 검사
+  if (!Array.isArray(scores)) {
     throw new Error('유효하지 않은 점수 데이터입니다.');
   }
 
-  const sumEI = scores.slice(0, 6).reduce((acc, cur) => acc + cur, 0);
-  const sumSN = scores.slice(6, 12).reduce((acc, cur) => acc + cur, 0);
-  const sumTF = scores.slice(12, 18).reduce((acc, cur) => acc + cur, 0);
-  const sumJP = scores.slice(18, 24).reduce((acc, cur) => acc + cur, 0);
+  // 학생용과 성인용으로 분기
+  if (isStudent) {
+    // 학생용: 16개 질문
+    if (scores.length !== 16) {
+      throw new Error('학생용 설문조사의 모든 질문에 답변해 주세요.');
+    }
+    
+    const sumEI = scores.slice(0, 4).reduce((acc, cur) => acc + cur, 0);
+    const sumSN = scores.slice(4, 8).reduce((acc, cur) => acc + cur, 0);
+    const sumTF = scores.slice(8, 12).reduce((acc, cur) => acc + cur, 0);
+    const sumJP = scores.slice(12, 16).reduce((acc, cur) => acc + cur, 0);
 
-  const typeE = sumEI > 18 ? 'E' : 'I';
-  const typeN = sumSN > 18 ? 'N' : 'S';
-  const typeF = sumTF > 18 ? 'F' : 'T';
-  const typeP = sumJP > 18 ? 'P' : 'J';
+    const typeE = sumEI > 12 ? 'E' : 'I';
+    const typeN = sumSN > 12 ? 'N' : 'S';
+    const typeF = sumTF > 12 ? 'F' : 'T';
+    const typeP = sumJP > 12 ? 'P' : 'J';
 
-  return `${typeE}${typeN}${typeF}${typeP}`;
+    return `${typeE}${typeN}${typeF}${typeP}`;
+  } else {
+    // 성인용: 24개 질문
+    if (scores.length !== 24) {
+      throw new Error('성인용 설문조사의 모든 질문에 답변해 주세요.');
+    }
+    
+    const sumEI = scores.slice(0, 6).reduce((acc, cur) => acc + cur, 0);
+    const sumSN = scores.slice(6, 12).reduce((acc, cur) => acc + cur, 0);
+    const sumTF = scores.slice(12, 18).reduce((acc, cur) => acc + cur, 0);
+    const sumJP = scores.slice(18, 24).reduce((acc, cur) => acc + cur, 0);
+
+    const typeE = sumEI > 18 ? 'E' : 'I';
+    const typeN = sumSN > 18 ? 'N' : 'S';
+    const typeF = sumTF > 18 ? 'F' : 'T';
+    const typeP = sumJP > 18 ? 'P' : 'J';
+
+    return `${typeE}${typeN}${typeF}${typeP}`;
+  }
 }
 
 function getSWOT(type, isStudent) {
@@ -143,19 +169,31 @@ async function generatePDF() {
 // 메인 이벤트 핸들러
 document.addEventListener('DOMContentLoaded', () => {
   try {
+    // localStorage 초기화 (이전 데이터만 초기화)
+    const currentType = localStorage.getItem('isStudent') === 'true' ? 'student' : 'adult';
+    const otherType = currentType === 'student' ? 'adult' : 'student';
+    
+    // 현재 진행 중인 설문조사의 데이터는 유지하고, 다른 설문조사의 데이터만 초기화
+    localStorage.removeItem(`${otherType}Scores`);
+
     // 성인/학생 구분 플래그 확인
     const isStudent = localStorage.getItem('isStudent') === 'true';
-
-    // 점수 데이터 가져오기
+    
+    // 점수 데이터 가져오기 및 유효성 검사
     const scores = JSON.parse(localStorage.getItem(isStudent ? 'studentScores' : 'adultScores') || '[]');
+    if (!scores || (isStudent ? scores.length !== 16 : scores.length !== 24)) {
+      const errorType = isStudent ? '학생용' : '성인용';
+      throw new Error(`${errorType} 설문조사의 모든 질문에 답변해 주세요.`);
+    }
 
     // 점수 데이터 유효성 검사
-    if (!scores || scores.length !== 24) {
-      throw new Error('올바른 설문 결과가 없습니다.');
+    if (!scores || (isStudent ? scores.length !== 16 : scores.length !== 24)) {
+      const errorType = isStudent ? '학생용' : '성인용';
+      throw new Error(`${errorType} 설문조사의 모든 질문에 답변해 주세요.`);
     }
 
     // MBTI 유형 계산
-    const mbtiType = calcMBTI(scores);
+    const mbtiType = calcMBTI(scores, isStudent);
 
     // 결과 데이터 가져오기
     const resultData = isStudent ? mbtiDescriptionsStudent[mbtiType] : mbtiDescriptionsAdult[mbtiType];
@@ -169,20 +207,38 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('recommend').textContent = resultData.recommend;
 
     // 성경 인물/구절 표시
-    const bibleInfo = isStudent ? mbtiBibleMap[mbtiType].new : mbtiBibleMap[mbtiType].old;
-    document.getElementById('bible-person').textContent = bibleInfo.name;
-    document.getElementById('bible-verse').textContent = bibleInfo.verse;
-    document.getElementById('bible-text').textContent = bibleInfo.text;
+    const oldTestament = mbtiBibleMap[mbtiType].old;
+    const newTestament = mbtiBibleMap[mbtiType].new;
+    
+    // 구약 카드
+    document.getElementById('old-testament').innerHTML = `
+      <div class="bible-card">
+        <h3>구약 인물</h3>
+        <p class="bible-person">${oldTestament.name}</p>
+        <p class="bible-verse">${oldTestament.verse}</p>
+        <p class="bible-text">${oldTestament.text}</p>
+      </div>
+    `;
+    
+    // 신약 카드
+    document.getElementById('new-testament').innerHTML = `
+      <div class="bible-card">
+        <h3>신약 인물</h3>
+        <p class="bible-person">${newTestament.name}</p>
+        <p class="bible-verse">${newTestament.verse}</p>
+        <p class="bible-text">${newTestament.text}</p>
+      </div>
+    `;
 
     // 차트 생성
     createMBTIChart(scores);
 
     // SWOT 분석 표시
     const swot = getSWOT(mbtiType, isStudent);
-    document.getElementById('strengths').innerHTML = `<h3>강점</h3>${swot.strengths.replace(/\n/g, '<br>')}`;
-    document.getElementById('weaknesses').innerHTML = `<h3>약점</h3>${swot.weaknesses.replace(/\n/g, '<br>')}`;
-    document.getElementById('opportunities').innerHTML = `<h3>기회</h3>${swot.opportunities.replace(/\n/g, '<br>')}`;
-    document.getElementById('threats').innerHTML = `<h3>위협</h3>${swot.threats.replace(/\n/g, '<br>')}`;
+    document.getElementById('strengths').innerHTML = `<h3>강점</h3><ul>${swot.strengths.map(item => `<li>${item}</li>`).join('')}</ul>`;
+    document.getElementById('weaknesses').innerHTML = `<h3>약점</h3><ul>${swot.weaknesses.map(item => `<li>${item}</li>`).join('')}</ul>`;
+    document.getElementById('opportunities').innerHTML = `<h3>기회</h3><ul>${swot.opportunities.map(item => `<li>${item}</li>`).join('')}</ul>`;
+    document.getElementById('threats').innerHTML = `<h3>위협</h3><ul>${swot.threats.map(item => `<li>${item}</li>`).join('')}</ul>`;
 
     // PDF 저장 버튼 이벤트 리스너
     document.getElementById('save-pdf').addEventListener('click', async () => {

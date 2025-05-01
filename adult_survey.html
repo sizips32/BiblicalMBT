@@ -92,7 +92,19 @@
     const answers = [];
 
     function loadQuestion() {
+      // 모든 질문에 대한 답변이 있는지 확인
       if (current >= questions.length) {
+        // 모든 질문에 대한 답변이 있는지 확인
+        if (answers.length !== questions.length) {
+          alert('모든 질문에 답변해 주세요!');
+          return;
+        }
+        
+        // 기존 데이터 초기화
+        localStorage.removeItem('studentScores');
+        localStorage.removeItem('isStudent');
+        
+        // 점수 저장
         localStorage.setItem('adultScores', JSON.stringify(answers));
         localStorage.setItem('isStudent', 'false');
         window.location.href = 'result.html';

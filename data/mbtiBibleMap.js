@@ -1,5 +1,5 @@
 // MBTI 유형별 성경 인물 데이터
-const mbtiBibleMap = {
+export const mbtiBibleMap = {
     ISTJ: {
         old: { name: '모세', verse: '출애굽기 18:24', text: '모세가 그의 장인의 말을 듣고 그 모든 말대로 하여…' },
         new: { name: '야고보', verse: '야고보서 2:17', text: '이와 같이 행함이 없는 믿음은 그 자체가 죽은 것이라.' }
