@@ -22,10 +22,17 @@ function calcMBTI(scores, isStudent) {
     const sumTF = scores.slice(8, 12).reduce((acc, cur) => acc + cur, 0);
     const sumJP = scores.slice(12, 16).reduce((acc, cur) => acc + cur, 0);
 
-    const typeE = sumEI > 12 ? 'E' : 'I';
-    const typeN = sumSN > 12 ? 'N' : 'S';
-    const typeF = sumTF > 12 ? 'F' : 'T';
-    const typeP = sumJP > 12 ? 'P' : 'J';
+    // 백분율 계산 (각 지표당 최대 점수는 20점)
+    const percentEI = (sumEI / 20) * 100;
+    const percentSN = (sumSN / 20) * 100;
+    const percentTF = (sumTF / 20) * 100;
+    const percentJP = (sumJP / 20) * 100;
+
+    // 백분율 45~55%는 중간값으로 보고, 그 외는 해당 성향으로 판정
+    const typeE = percentEI > 55 ? 'E' : (percentEI < 45 ? 'I' : (sumEI >= 10 ? 'E' : 'I'));
+    const typeN = percentSN > 55 ? 'N' : (percentSN < 45 ? 'S' : (sumSN >= 10 ? 'N' : 'S'));
+    const typeF = percentTF > 55 ? 'F' : (percentTF < 45 ? 'T' : (sumTF >= 10 ? 'F' : 'T'));
+    const typeP = percentJP > 55 ? 'P' : (percentJP < 45 ? 'J' : (sumJP >= 10 ? 'P' : 'J'));
 
     return `${typeE}${typeN}${typeF}${typeP}`;
   } else {
@@ -39,10 +46,17 @@ function calcMBTI(scores, isStudent) {
     const sumTF = scores.slice(12, 18).reduce((acc, cur) => acc + cur, 0);
     const sumJP = scores.slice(18, 24).reduce((acc, cur) => acc + cur, 0);
 
-    const typeE = sumEI > 18 ? 'E' : 'I';
-    const typeN = sumSN > 18 ? 'N' : 'S';
-    const typeF = sumTF > 18 ? 'F' : 'T';
-    const typeP = sumJP > 18 ? 'P' : 'J';
+    // 백분율 계산 (각 지표당 최대 점수는 30점)
+    const percentEI = (sumEI / 30) * 100;
+    const percentSN = (sumSN / 30) * 100;
+    const percentTF = (sumTF / 30) * 100;
+    const percentJP = (sumJP / 30) * 100;
+
+    // 백분율 45~55%는 중간값으로 보고, 그 외는 해당 성향으로 판정
+    const typeE = percentEI > 55 ? 'E' : (percentEI < 45 ? 'I' : (sumEI >= 15 ? 'E' : 'I'));
+    const typeN = percentSN > 55 ? 'N' : (percentSN < 45 ? 'S' : (sumSN >= 15 ? 'N' : 'S'));
+    const typeF = percentTF > 55 ? 'F' : (percentTF < 45 ? 'T' : (sumTF >= 15 ? 'F' : 'T'));
+    const typeP = percentJP > 55 ? 'P' : (percentJP < 45 ? 'J' : (sumJP >= 15 ? 'P' : 'J'));
 
     return `${typeE}${typeN}${typeF}${typeP}`;
   }
