@@ -137,6 +137,9 @@ async function generatePDF() {
     // PDF로 저장할 컨텐츠 영역
     const element = document.getElementById('pdf-content');
 
+    // 모바일 환경 체크
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
     // 모바일 환경에서의 최적화된 옵션
     const options = {
       scale: window.devicePixelRatio || 2, // 디바이스 픽셀 비율 적용
@@ -152,19 +155,32 @@ async function generatePDF() {
     // HTML을 캔버스로 변환
     const canvas = await html2canvas(element, options);
 
-    // 캔버스 크기 계산 (A4 기준)
-    const imgWidth = 210; // A4 너비 (mm)
-    const pageHeight = 297; // A4 높이 (mm)
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    // PDF 크기 계산
+    let pdfWidth, pdfHeight;
+
+    if (isMobile) {
+      // 모바일에서는 A4 비율을 유지하면서 내용이 잘리지 않도록 조정
+      const contentRatio = canvas.height / canvas.width;
+      pdfWidth = 210; // A4 너비 (mm)
+      pdfHeight = pdfWidth * contentRatio;
+    } else {
+      // 데스크톱에서는 A4 크기 유지
+      pdfWidth = 210; // A4 너비 (mm)
+      pdfHeight = 297; // A4 높이 (mm)
+    }
 
     // PDF 생성 (더 높은 품질 설정)
-    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdf = new jsPDF({
+      orientation: pdfHeight > pdfWidth ? 'portrait' : 'landscape',
+      unit: 'mm',
+      format: [pdfWidth, pdfHeight]
+    });
 
     // 이미지 품질 향상을 위한 설정
     const imgData = canvas.toDataURL('image/jpeg', 1.0);
 
-    // 이미지 추가
-    pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+    // 이미지를 PDF 크기에 맞게 추가
+    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
 
     return pdf;
   } catch (error) {
@@ -253,20 +269,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // 버튼 숨김
         document.querySelector('.result-btns').style.display = 'none';
 
-        // 모바일 환경 체크
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
         // PDF 생성
         const pdf = await generatePDF();
 
-        if (isMobile) {
-          // 모바일 환경에서는 새 창에서 PDF 열기
-          const pdfData = pdf.output('datauristring');
-          window.open(pdfData, '_blank');
-        } else {
-          // 데스크톱 환경에서는 다운로드
-          pdf.save('MBTI_결과.pdf');
-        }
+        // 데스크톱 환경에서는 다운로드
+        pdf.save('MBTI_결과.pdf');
 
         // 버튼 다시 표시
         setTimeout(() => {
