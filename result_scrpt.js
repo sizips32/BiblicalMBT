@@ -16,7 +16,7 @@ function calcMBTI(scores, isStudent) {
     if (scores.length !== 16) {
       throw new Error('학생용 설문조사의 모든 질문에 답변해 주세요.');
     }
-    
+
     const sumEI = scores.slice(0, 4).reduce((acc, cur) => acc + cur, 0);
     const sumSN = scores.slice(4, 8).reduce((acc, cur) => acc + cur, 0);
     const sumTF = scores.slice(8, 12).reduce((acc, cur) => acc + cur, 0);
@@ -33,7 +33,7 @@ function calcMBTI(scores, isStudent) {
     if (scores.length !== 24) {
       throw new Error('성인용 설문조사의 모든 질문에 답변해 주세요.');
     }
-    
+
     const sumEI = scores.slice(0, 6).reduce((acc, cur) => acc + cur, 0);
     const sumSN = scores.slice(6, 12).reduce((acc, cur) => acc + cur, 0);
     const sumTF = scores.slice(12, 18).reduce((acc, cur) => acc + cur, 0);
@@ -137,27 +137,34 @@ async function generatePDF() {
     // PDF로 저장할 컨텐츠 영역
     const element = document.getElementById('pdf-content');
 
-    // html2canvas 옵션 설정
+    // 모바일 환경에서의 최적화된 옵션
     const options = {
-      scale: 2, // 해상도 2배로 설정
+      scale: window.devicePixelRatio || 2, // 디바이스 픽셀 비율 적용
       useCORS: true, // CORS 이미지 허용
       logging: false, // 로깅 비활성화
-      backgroundColor: '#ffffff' // 배경색 설정
+      backgroundColor: '#ffffff', // 배경색 설정
+      windowWidth: element.scrollWidth, // 요소의 실제 너비
+      windowHeight: element.scrollHeight, // 요소의 실제 높이
+      scrollX: window.scrollX, // 현재 스크롤 위치
+      scrollY: window.scrollY
     };
 
     // HTML을 캔버스로 변환
     const canvas = await html2canvas(element, options);
 
-    // 캔버스 크기 계산
+    // 캔버스 크기 계산 (A4 기준)
     const imgWidth = 210; // A4 너비 (mm)
     const pageHeight = 297; // A4 높이 (mm)
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    // PDF 생성
+    // PDF 생성 (더 높은 품질 설정)
     const pdf = new jsPDF('p', 'mm', 'a4');
 
+    // 이미지 품질 향상을 위한 설정
+    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+
     // 이미지 추가
-    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, imgWidth, imgHeight);
+    pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
 
     return pdf;
   } catch (error) {
@@ -172,13 +179,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // localStorage 초기화 (이전 데이터만 초기화)
     const currentType = localStorage.getItem('isStudent') === 'true' ? 'student' : 'adult';
     const otherType = currentType === 'student' ? 'adult' : 'student';
-    
+
     // 현재 진행 중인 설문조사의 데이터는 유지하고, 다른 설문조사의 데이터만 초기화
     localStorage.removeItem(`${otherType}Scores`);
 
     // 성인/학생 구분 플래그 확인
     const isStudent = localStorage.getItem('isStudent') === 'true';
-    
+
     // 점수 데이터 가져오기 및 유효성 검사
     const scores = JSON.parse(localStorage.getItem(isStudent ? 'studentScores' : 'adultScores') || '[]');
     if (!scores || (isStudent ? scores.length !== 16 : scores.length !== 24)) {
@@ -209,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 성경 인물/구절 표시
     const oldTestament = mbtiBibleMap[mbtiType].old;
     const newTestament = mbtiBibleMap[mbtiType].new;
-    
+
     // 구약 카드
     document.getElementById('old-testament').innerHTML = `
       <div class="bible-card">
@@ -219,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <p class="bible-text">${oldTestament.text}</p>
       </div>
     `;
-    
+
     // 신약 카드
     document.getElementById('new-testament').innerHTML = `
       <div class="bible-card">
@@ -246,9 +253,20 @@ document.addEventListener('DOMContentLoaded', () => {
         // 버튼 숨김
         document.querySelector('.result-btns').style.display = 'none';
 
-        // PDF 생성 및 저장
+        // 모바일 환경 체크
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        // PDF 생성
         const pdf = await generatePDF();
-        pdf.save('MBTI_결과.pdf');
+
+        if (isMobile) {
+          // 모바일 환경에서는 새 창에서 PDF 열기
+          const pdfData = pdf.output('datauristring');
+          window.open(pdfData, '_blank');
+        } else {
+          // 데스크톱 환경에서는 다운로드
+          pdf.save('MBTI_결과.pdf');
+        }
 
         // 버튼 다시 표시
         setTimeout(() => {
