@@ -34,12 +34,8 @@ function calcMBTI(scores, isStudent) {
 
   // 판정 (50% 기준, 45~55%는 중간)
   function judge(p, pos, neg) {
-    if (p > 55) return pos;
-    if (p < 45) return neg;
-    // 중간값 구간이면, 예/아니오 개수 차이로 보정
-    if (p > 50) return pos + '(중간)';
-    if (p < 50) return neg + '(중간)';
-    return '중간';
+    // 중간값 구간도 무조건 한쪽으로 판정 (50% 이상은 pos, 미만은 neg)
+    return p >= 50 ? pos : neg;
   }
 
   const mbtiType =
