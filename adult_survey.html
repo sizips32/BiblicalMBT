@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -12,18 +13,21 @@
       text-align: center;
       padding: 40px;
     }
+
     .container {
       max-width: 600px;
       margin: auto;
       background: white;
       padding: 20px;
       border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
+
     .question {
       font-size: 20px;
       margin-bottom: 20px;
     }
+
     .scale-buttons button {
       margin: 5px;
       padding: 10px 20px;
@@ -35,6 +39,7 @@
       cursor: pointer;
       transition: background 0.18s, color 0.18s, border 0.18s, transform 0.13s;
     }
+
     .scale-buttons button.selected {
       background-color: #fff;
       color: #d32f2f;
@@ -42,11 +47,13 @@
       font-weight: bold;
       transform: scale(1.07);
     }
+
     .scale-buttons button:hover {
       background-color: #45a049;
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>성인용 성경적 MBTI 설문</h1>
@@ -60,51 +67,71 @@
 
   <script>
     const questions = [
-      "나는 여러 사람과 함께 신앙 활동을 할 때 에너지가 충전된다.",
-      "조용한 환경에서 깊이 묵상하며 하나님과 교제하는 시간이 나에게 중요하다.",
-      "새로운 사람을 만나는 것이 신앙 성장에 도움이 된다고 느낀다.",
-      "혼자만의 시간을 통해 내 믿음을 점검하고 성장한다.",
-      "복음을 전할 때 자연스럽고 적극적으로 나서게 된다.",
-      "개인적으로 하나님께 기도하고 말씀을 묵상하는 시간이 꼭 필요하다.",
-      "현재 내게 주어진 일상 속에서 하나님의 뜻을 찾으려고 노력한다.",
-      "미래에 대한 하나님의 비전과 인도하심을 자주 상상한다.",
-      "작은 일에도 신실하게 임하는 것이 신앙인의 자세라고 생각한다.",
-      "상상력과 영적 통찰을 통해 하나님의 뜻을 더 깊이 이해하려 한다.",
-      "실행 가능한 계획을 세워 신앙을 실천하는 편이다.",
-      "계획보다는 성령의 인도하심에 따라 즉흥적으로 움직일 때가 많다.",
-      "신앙생활에서 옳고 그름을 분명하게 구분하려 한다.",
-      "사람들의 감정과 상황에 공감하며 배려하는 것이 중요하다.",
-      "성경 말씀을 기준 삼아 이성적으로 판단하려 한다.",
-      "다른 이의 아픔에 함께 공감하고 위로하려 노력한다.",
-      "진리와 원칙을 지키기 위해 단호하게 행동할 수 있다.",
-      "사람들의 약점을 감싸 안고 이해하려 한다.",
-      "계획을 세우고 그에 따라 꾸준히 실천하는 것을 선호한다.",
-      "계획이 바뀌더라도 유연하게 받아들이고 순종한다.",
-      "예배나 봉사에서 정해진 순서와 규칙을 중요하게 생각한다.",
-      "하나님의 뜻에 민감하게 반응하며 새로운 시도에 열려 있다.",
-      "주어진 일을 끝까지 책임감 있게 완수하려 한다.",
-      "계획보다 하나님께서 주시는 기회에 믿음으로 순종하는 편이다."
+      // E/I (12문항)
+      "나는 교회 소그룹 모임에서 자연스럽게 대화를 이끈다.",
+      "나는 예배 후 조용히 묵상하는 시간이 더 편하다.",
+      "나는 교회 행사에서 새로운 사람과 쉽게 친해진다.",
+      "나는 교회에서 조용히 봉사하는 것이 좋다.",
+      "나는 교회 모임에서 의견을 먼저 제시한다.",
+      "나는 교회 모임에서 듣는 역할이 더 편하다.",
+      "나는 전도활동에서 적극적으로 참여한다.",
+      "나는 전도활동에서 뒷받침 역할을 선호한다.",
+      "나는 교회에서 여러 사람과 교제하는 것이 즐겁다.",
+      "나는 소수의 친한 교우와 깊이 교제하는 것이 좋다.",
+      "나는 교회 발표나 특송에 자원한다.",
+      "나는 무대보다는 준비나 지원을 선호한다.",
+      // S/N (12문항)
+      "나는 성경 말씀을 읽을 때 구체적인 사건과 사실에 주목한다.",
+      "나는 성경의 상징과 예언을 해석하는 데 관심이 많다.",
+      "나는 교회 봉사에서 실질적인 일(청소, 준비 등)에 집중한다.",
+      "나는 새로운 사역 아이디어를 내는 것을 좋아한다.",
+      "나는 말씀을 들을 때 실제 적용 방법에 관심이 많다.",
+      "나는 말씀을 들을 때 영적 의미와 비전을 상상한다.",
+      "나는 교회에서 구체적인 지침이 있으면 편하다.",
+      "나는 자유롭게 봉사 방법을 찾는 것이 좋다.",
+      "나는 성경공부에서 사실 확인을 중시한다.",
+      "나는 성경공부에서 다양한 해석을 탐구한다.",
+      "나는 교회 행사에서 실무를 맡는 것이 익숙하다.",
+      "나는 교회 행사에서 기획이나 아이디어를 내는 것이 익숙하다.",
+      // T/F (12문항)
+      "나는 교회 내 의사결정에서 원칙과 규칙을 중시한다.",
+      "나는 교우의 감정과 관계를 우선 고려한다.",
+      "나는 봉사할 때 효율성과 결과를 중요하게 생각한다.",
+      "나는 봉사할 때 팀원들의 동기와 분위기를 중요하게 생각한다.",
+      "나는 교회 문제를 논리적으로 해결하려 한다.",
+      "나는 교회 문제를 모두가 만족하는 방향으로 해결하려 한다.",
+      "나는 비판적 피드백을 솔직하게 전달한다.",
+      "나는 비판보다는 격려와 위로를 먼저 한다.",
+      "나는 교회 규칙을 지키는 것이 중요하다고 생각한다.",
+      "나는 교우의 상황에 따라 융통성 있게 대한다.",
+      "나는 의사결정에서 사실과 데이터를 중시한다.",
+      "나는 의사결정에서 사람들의 감정을 중시한다.",
+      // J/P (12문항)
+      "나는 안식일 준비를 미리 계획하고 실천한다.",
+      "나는 성령의 인도하심에 따라 유연하게 봉사 일정을 조정한다.",
+      "나는 교회 일정을 미리 정해두는 것이 편하다.",
+      "나는 상황에 따라 즉흥적으로 봉사하는 것이 편하다.",
+      "나는 계획대로 일이 진행될 때 마음이 편하다.",
+      "나는 계획이 바뀌어도 유연하게 대처한다.",
+      "나는 봉사나 모임에 미리 준비해서 참여한다.",
+      "나는 준비 없이도 즉석에서 잘 참여한다.",
+      "나는 마감이나 기한을 잘 지킨다.",
+      "나는 마감이 임박해야 집중이 잘 된다.",
+      "나는 정해진 규칙과 절차를 선호한다.",
+      "나는 자유로운 분위기에서 더 잘 일한다."
     ];
-
-    const scaleLabels = ["매우 아니다", "아니다", "보통이다", "그렇다", "매우 그렇다"];
 
     let current = 0;
     const answers = [];
 
     function loadQuestion() {
-      // 모든 질문에 대한 답변이 있는지 확인
       if (current >= questions.length) {
-        // 모든 질문에 대한 답변이 있는지 확인
         if (answers.length !== questions.length) {
           alert('모든 질문에 답변해 주세요!');
           return;
         }
-        
-        // 기존 데이터 초기화
         localStorage.removeItem('studentScores');
         localStorage.removeItem('isStudent');
-        
-        // 점수 저장
         localStorage.setItem('adultScores', JSON.stringify(answers));
         localStorage.setItem('isStudent', 'false');
         window.location.href = 'result.html';
@@ -112,52 +139,38 @@
       }
       document.getElementById("question-box").textContent = `Q${current + 1}. ${questions[current]}`;
       document.getElementById('prev-btn').style.visibility = current === 0 ? 'hidden' : 'visible';
-      document.getElementById('next-btn').textContent = current === questions.length - 1 ? '제출' : '다음';
-      const scaleBtns = document.querySelectorAll('.scale-buttons button');
-      scaleBtns.forEach((btn, idx) => {
-        if (answers[current] === idx + 1) {
-          btn.classList.add('selected');
-        } else {
-          btn.classList.remove('selected');
-        }
-      });
+      document.getElementById('next-btn').style.display = 'none';
+      renderBinaryButtons();
     }
 
     function submitAnswer(score) {
       answers[current] = score;
+      current++;
       loadQuestion();
     }
 
-    document.getElementById('prev-btn').onclick = function() {
+    document.getElementById('prev-btn').onclick = function () {
       if (current > 0) {
         current--;
         loadQuestion();
       }
     };
-    document.getElementById('next-btn').onclick = function() {
-      if (answers[current]) {
-        current++;
-        loadQuestion();
-      } else {
-        alert('선택지를 먼저 선택해 주세요.');
-      }
-    };
 
-    function renderScaleButtons() {
+    function renderBinaryButtons() {
       const scaleDiv = document.querySelector('.scale-buttons');
       scaleDiv.innerHTML = '';
-      scaleLabels.forEach((label, idx) => {
-        const btn = document.createElement('button');
-        btn.textContent = label;
-        btn.onclick = function() { submitAnswer(idx + 1); };
-        if (answers[current] === idx + 1) {
-          btn.classList.add('selected');
-        }
-        scaleDiv.appendChild(btn);
-      });
+      const yesBtn = document.createElement('button');
+      yesBtn.textContent = '예';
+      yesBtn.onclick = function () { submitAnswer(2); };
+      const noBtn = document.createElement('button');
+      noBtn.textContent = '아니오';
+      noBtn.onclick = function () { submitAnswer(1); };
+      scaleDiv.appendChild(yesBtn);
+      scaleDiv.appendChild(noBtn);
     }
-    renderScaleButtons();
+
     loadQuestion();
   </script>
 </body>
+
 </html>

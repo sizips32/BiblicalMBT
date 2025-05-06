@@ -10,56 +10,45 @@ function calcMBTI(scores, isStudent) {
     throw new Error('유효하지 않은 점수 데이터입니다.');
   }
 
-  // 학생용과 성인용으로 분기
-  if (isStudent) {
-    // 학생용: 16개 질문
-    if (scores.length !== 16) {
-      throw new Error('학생용 설문조사의 모든 질문에 답변해 주세요.');
-    }
-
-    const sumEI = scores.slice(0, 4).reduce((acc, cur) => acc + cur, 0);
-    const sumSN = scores.slice(4, 8).reduce((acc, cur) => acc + cur, 0);
-    const sumTF = scores.slice(8, 12).reduce((acc, cur) => acc + cur, 0);
-    const sumJP = scores.slice(12, 16).reduce((acc, cur) => acc + cur, 0);
-
-    // 백분율 계산 (각 지표당 최대 점수는 20점)
-    const percentEI = (sumEI / 20) * 100;
-    const percentSN = (sumSN / 20) * 100;
-    const percentTF = (sumTF / 20) * 100;
-    const percentJP = (sumJP / 20) * 100;
-
-    // 백분율 45~55%는 중간값으로 보고, 그 외는 해당 성향으로 판정
-    const typeE = percentEI > 55 ? 'E' : (percentEI < 45 ? 'I' : (sumEI >= 10 ? 'E' : 'I'));
-    const typeN = percentSN > 55 ? 'N' : (percentSN < 45 ? 'S' : (sumSN >= 10 ? 'N' : 'S'));
-    const typeF = percentTF > 55 ? 'F' : (percentTF < 45 ? 'T' : (sumTF >= 10 ? 'F' : 'T'));
-    const typeP = percentJP > 55 ? 'P' : (percentJP < 45 ? 'J' : (sumJP >= 10 ? 'P' : 'J'));
-
-    return `${typeE}${typeN}${typeF}${typeP}`;
-  } else {
-    // 성인용: 24개 질문
-    if (scores.length !== 24) {
-      throw new Error('성인용 설문조사의 모든 질문에 답변해 주세요.');
-    }
-
-    const sumEI = scores.slice(0, 6).reduce((acc, cur) => acc + cur, 0);
-    const sumSN = scores.slice(6, 12).reduce((acc, cur) => acc + cur, 0);
-    const sumTF = scores.slice(12, 18).reduce((acc, cur) => acc + cur, 0);
-    const sumJP = scores.slice(18, 24).reduce((acc, cur) => acc + cur, 0);
-
-    // 백분율 계산 (각 지표당 최대 점수는 30점)
-    const percentEI = (sumEI / 30) * 100;
-    const percentSN = (sumSN / 30) * 100;
-    const percentTF = (sumTF / 30) * 100;
-    const percentJP = (sumJP / 30) * 100;
-
-    // 백분율 45~55%는 중간값으로 보고, 그 외는 해당 성향으로 판정
-    const typeE = percentEI > 55 ? 'E' : (percentEI < 45 ? 'I' : (sumEI >= 15 ? 'E' : 'I'));
-    const typeN = percentSN > 55 ? 'N' : (percentSN < 45 ? 'S' : (sumSN >= 15 ? 'N' : 'S'));
-    const typeF = percentTF > 55 ? 'F' : (percentTF < 45 ? 'T' : (sumTF >= 15 ? 'F' : 'T'));
-    const typeP = percentJP > 55 ? 'P' : (percentJP < 45 ? 'J' : (sumJP >= 15 ? 'P' : 'J'));
-
-    return `${typeE}${typeN}${typeF}${typeP}`;
+  // 문항 수 및 지표별 분할
+  const groupSize = isStudent ? 8 : 12;
+  const totalQuestions = groupSize * 4;
+  if (scores.length !== totalQuestions) {
+    throw new Error(`${isStudent ? '학생용' : '성인용'} 설문조사의 모든 질문에 답변해 주세요.`);
   }
+
+  // 각 지표별 점수 합산
+  const sumEI = scores.slice(0, groupSize).reduce((a, b) => a + b, 0);
+  const sumSN = scores.slice(groupSize, groupSize * 2).reduce((a, b) => a + b, 0);
+  const sumTF = scores.slice(groupSize * 2, groupSize * 3).reduce((a, b) => a + b, 0);
+  const sumJP = scores.slice(groupSize * 3, groupSize * 4).reduce((a, b) => a + b, 0);
+
+  // 예/아니오(2점=예, 1점=아니오) → 0~groupSize*2점
+  // 비율 계산 (예: 2점=예, 1점=아니오)
+  const percent = (sum, size) => ((sum - size) / size) * 100;
+
+  const percentEI = percent(sumEI, groupSize);
+  const percentSN = percent(sumSN, groupSize);
+  const percentTF = percent(sumTF, groupSize);
+  const percentJP = percent(sumJP, groupSize);
+
+  // 판정 (50% 기준, 45~55%는 중간)
+  function judge(p, pos, neg) {
+    if (p > 55) return pos;
+    if (p < 45) return neg;
+    // 중간값 구간이면, 예/아니오 개수 차이로 보정
+    if (p > 50) return pos + '(중간)';
+    if (p < 50) return neg + '(중간)';
+    return '중간';
+  }
+
+  const mbtiType =
+    judge(percentEI, 'E', 'I') +
+    judge(percentSN, 'N', 'S') +
+    judge(percentTF, 'F', 'T') +
+    judge(percentJP, 'P', 'J');
+
+  return mbtiType;
 }
 
 function getSWOT(type, isStudent) {
@@ -80,7 +69,7 @@ function getSWOT(type, isStudent) {
   }
 }
 
-function createMBTIChart(scores) {
+function createMBTIChart(scores, isStudent) {
   try {
     const existingChart = Chart.getChart('mbtiChart');
     if (existingChart) {
@@ -88,12 +77,24 @@ function createMBTIChart(scores) {
     }
 
     const labels = ['E-I', 'S-N', 'T-F', 'J-P'];
-    const chartScores = [
-      calculateDimensionScore(scores.slice(0, 6)),
-      calculateDimensionScore(scores.slice(6, 12)),
-      calculateDimensionScore(scores.slice(12, 18)),
-      calculateDimensionScore(scores.slice(18, 24))
-    ];
+    let chartScores;
+    if (isStudent) {
+      // 학생용: 8문항씩 4지표
+      chartScores = [
+        calculateDimensionScore(scores.slice(0, 8)),
+        calculateDimensionScore(scores.slice(8, 16)),
+        calculateDimensionScore(scores.slice(16, 24)),
+        calculateDimensionScore(scores.slice(24, 32))
+      ];
+    } else {
+      // 성인용: 12문항씩 4지표
+      chartScores = [
+        calculateDimensionScore(scores.slice(0, 12)),
+        calculateDimensionScore(scores.slice(12, 24)),
+        calculateDimensionScore(scores.slice(24, 36)),
+        calculateDimensionScore(scores.slice(36, 48))
+      ];
+    }
 
     const chartCtx = document.getElementById('mbtiChart').getContext('2d');
     new Chart(chartCtx, {
@@ -101,7 +102,7 @@ function createMBTIChart(scores) {
       data: {
         labels: labels,
         datasets: [{
-          label: 'MBTI 점수 합계 (최대 30점)',
+          label: isStudent ? 'MBTI 점수 합계 (최대 16점)' : 'MBTI 점수 합계 (최대 24점)',
           data: chartScores,
           fill: true,
           backgroundColor: 'rgba(54, 162, 235, 0.2)',
@@ -123,10 +124,10 @@ function createMBTIChart(scores) {
         },
         scales: {
           r: {
-            ticks: { stepSize: 5 },
+            ticks: { stepSize: 2 },
             angleLines: { display: true },
             suggestedMin: 0,
-            suggestedMax: 30
+            suggestedMax: isStudent ? 16 : 24
           }
         }
       }
@@ -218,13 +219,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 점수 데이터 가져오기 및 유효성 검사
     const scores = JSON.parse(localStorage.getItem(isStudent ? 'studentScores' : 'adultScores') || '[]');
-    if (!scores || (isStudent ? scores.length !== 16 : scores.length !== 24)) {
-      const errorType = isStudent ? '학생용' : '성인용';
-      throw new Error(`${errorType} 설문조사의 모든 질문에 답변해 주세요.`);
-    }
-
-    // 점수 데이터 유효성 검사
-    if (!scores || (isStudent ? scores.length !== 16 : scores.length !== 24)) {
+    const expectedLength = isStudent ? 32 : 48;
+    if (!scores || scores.length !== expectedLength) {
       const errorType = isStudent ? '학생용' : '성인용';
       throw new Error(`${errorType} 설문조사의 모든 질문에 답변해 주세요.`);
     }
@@ -268,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
 
     // 차트 생성
-    createMBTIChart(scores);
+    createMBTIChart(scores, isStudent);
 
     // SWOT 분석 표시
     const swot = getSWOT(mbtiType, isStudent);

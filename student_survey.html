@@ -70,43 +70,55 @@
     import { swotAnalysis } from './data/swotAnalysis.js';
 
     const questions = [
-      "친구들과 함께 공부하거나 놀 때 에너지가 넘쳐요.",
-      "혼자서 조용히 책을 읽거나 생각하는 시간이 좋아요.",
-      "새로운 친구를 만나는 것이 학교생활에 도움이 된다고 생각해요.",
-      "혼자만의 시간을 통해 나를 더 잘 이해하려 노력해요.",
-      "가족들과 함께 식사하며 대화하는 시간이 소중해요.",
-      "친구들과 함께 놀이터나 공원에서 놀 때가 즐거워요.",
-      "일상에서 작은 것들을 잘 관찰하고 기록하는 편이에요.",
-      "미래에 대한 꿈과 가능성을 자주 상상해요.",
-      "작은 일에도 최선을 다하는 것이 중요하다고 생각해요.",
-      "깊이 생각하고 이해하는 것이 중요하다고 생각해요.",
-      "학습 계획을 세우고 그대로 실천하는 편이에요.",
-      "계획보다는 상황에 맞게 유연하게 대처하는 편이에요.",
-      "공부나 일에서 옳고 그름을 분명히 알고 싶어요.",
-      "친구들의 마음을 이해하고 배려하는 것이 중요하다고 생각해요.",
-      "학습 목표를 세우고 그대로 실천하는 편이에요.",
-      "상황에 따라 계획을 유연하게 조정하는 편이에요."
+      // E/I (8문항)
+      "나는 학교에서 친구들과 어울리는 것이 즐겁다.",
+      "나는 혼자 책 읽거나 조용히 있는 시간이 좋다.",
+      "나는 발표나 모둠활동에서 먼저 나선다.",
+      "나는 발표보다는 조용히 듣는 것이 좋다.",
+      "나는 새로운 친구를 쉽게 사귄다.",
+      "나는 친한 친구 몇 명과만 어울린다.",
+      "나는 학교 행사에서 적극적으로 참여한다.",
+      "나는 학교 행사에서 뒷받침 역할을 선호한다.",
+      // S/N (8문항)
+      "나는 수업 내용을 구체적으로 기억하는 편이다.",
+      "나는 상상하거나 새로운 아이디어를 떠올리는 걸 좋아한다.",
+      "나는 숙제를 할 때 구체적인 지시가 있으면 좋다.",
+      "나는 숙제를 할 때 나만의 방법을 찾는 것이 좋다.",
+      "나는 실제로 해보는 활동이 좋다.",
+      "나는 상상 속에서 새로운 이야기를 만드는 걸 좋아한다.",
+      "나는 수업에서 사실과 정보를 중시한다.",
+      "나는 수업에서 다양한 해석과 생각을 나누는 걸 좋아한다.",
+      // T/F (8문항)
+      "나는 문제를 해결할 때 논리적으로 생각한다.",
+      "나는 친구의 기분을 먼저 생각한다.",
+      "나는 규칙을 지키는 것이 중요하다고 생각한다.",
+      "나는 친구들과 사이좋게 지내는 것이 더 중요하다.",
+      "나는 의견이 다를 때 논리적으로 설명한다.",
+      "나는 의견이 다를 때 상대방의 감정을 배려한다.",
+      "나는 사실과 이유를 따져서 결정한다.",
+      "나는 친구의 입장을 이해하려고 노력한다.",
+      // J/P (8문항)
+      "나는 숙제를 미리 계획해서 한다.",
+      "나는 그때그때 하고 싶은 대로 숙제를 한다.",
+      "나는 시간표나 계획표를 잘 지킨다.",
+      "나는 계획 없이 자유롭게 노는 것이 좋다.",
+      "나는 준비물을 미리 챙긴다.",
+      "나는 준비물을 즉석에서 챙기는 편이다.",
+      "나는 정해진 규칙을 잘 따른다.",
+      "나는 규칙보다는 자유로운 분위기를 좋아한다."
     ];
-
-    const scaleLabels = ["전혀 아니에요", "아니에요", "보통이에요", "그렇네요", "정말 그래요"];
 
     let current = 0;
     const answers = [];
 
     function loadQuestion() {
-      // 모든 질문에 대한 답변이 있는지 확인
       if (current >= questions.length) {
-        // 모든 질문에 대한 답변이 있는지 확인
         if (answers.length !== questions.length) {
           alert('모든 질문에 답변해 주세요!');
           return;
         }
-        
-        // 기존 데이터 초기화
         localStorage.removeItem('adultScores');
         localStorage.removeItem('isStudent');
-        
-        // 점수 저장
         localStorage.setItem('studentScores', JSON.stringify(answers));
         localStorage.setItem('isStudent', 'true');
         window.location.href = 'result.html';
@@ -114,19 +126,13 @@
       }
       document.getElementById("question-box").textContent = `Q${current + 1}. ${questions[current]}`;
       document.getElementById('prev-btn').style.visibility = current === 0 ? 'hidden' : 'visible';
-      document.getElementById('next-btn').textContent = current === questions.length - 1 ? '제출' : '다음';
-      const scaleBtns = document.querySelectorAll('.scale-buttons button');
-      scaleBtns.forEach((btn, idx) => {
-        if (answers[current] === idx + 1) {
-          btn.classList.add('selected');
-        } else {
-          btn.classList.remove('selected');
-        }
-      });
+      document.getElementById('next-btn').style.display = 'none';
+      renderBinaryButtons();
     }
 
     function submitAnswer(score) {
       answers[current] = score;
+      current++;
       loadQuestion();
     }
 
@@ -136,29 +142,20 @@
         loadQuestion();
       }
     };
-    document.getElementById('next-btn').onclick = function () {
-      if (answers[current]) {
-        current++;
-        loadQuestion();
-      } else {
-        alert('선택지를 먼저 선택해 주세요.');
-      }
-    };
 
-    function renderScaleButtons() {
+    function renderBinaryButtons() {
       const scaleDiv = document.querySelector('.scale-buttons');
       scaleDiv.innerHTML = '';
-      scaleLabels.forEach((label, idx) => {
-        const btn = document.createElement('button');
-        btn.textContent = label;
-        btn.onclick = function () { submitAnswer(idx + 1); };
-        if (answers[current] === idx + 1) {
-          btn.classList.add('selected');
-        }
-        scaleDiv.appendChild(btn);
-      });
+      const yesBtn = document.createElement('button');
+      yesBtn.textContent = '예';
+      yesBtn.onclick = function () { submitAnswer(2); };
+      const noBtn = document.createElement('button');
+      noBtn.textContent = '아니오';
+      noBtn.onclick = function () { submitAnswer(1); };
+      scaleDiv.appendChild(yesBtn);
+      scaleDiv.appendChild(noBtn);
     }
-    renderScaleButtons();
+
     loadQuestion();
   </script>
 </body>
